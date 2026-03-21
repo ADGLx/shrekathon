@@ -22,6 +22,7 @@ docker compose up --build
 ### API
 
 - `POST /create-game`
+- `POST /end-game`
 
 Example request:
 
@@ -37,4 +38,13 @@ Example response:
 
 ```json
 {"game_id":"demo-123","status":"created"}
+```
+
+End game example request:
+
+```bash
+curl -X POST http://localhost:8001/end-game \
+  -H "content-type: application/json" \
+  -H "x-api-password: your-password" \
+  -d '{"game_id":"1234"}'
 ```

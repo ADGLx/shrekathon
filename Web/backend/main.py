@@ -3,7 +3,7 @@ import random
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Header, HTTPException, status
+from fastapi import Body, FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Shrekathon API")
@@ -59,3 +59,21 @@ def create_game(x_api_password: str | None = Header(default=None)) -> dict[str, 
     game_id = _generate_game_id()
     print(f"Game created: {game_id}")
     return {"game_id": game_id, "status": "created"}
+
+
+@app.post("/end-game")
+def end_game(
+    x_api_password: str | None = Header(default=None),
+    game_id: str = Body(embed=True),
+) -> dict[str, str]:
+    _verify_create_game_password(x_api_password)
+
+    if game_id not in game_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game not found",
+        )
+
+    game_ids.remove(game_id)
+    print(f"Game ended: {game_id}")
+    return {"game_id": game_id, "status": "ended"}
