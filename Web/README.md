@@ -14,6 +14,30 @@ This repo now includes:
 docker compose up --build
 ```
 
+## Dockerized prod setup
+
+Production compose file:
+
+- `docker-compose.prod.yml`: builds backend and frontend production images
+- frontend is served by Nginx
+- Nginx proxies API requests from `/api/*` to `onion-api:8000`
+
+### Start prod stack
+
+```bash
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+### Stop prod stack
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+### Prod URL
+
+- App + API gateway: `http://localhost`
+
 ### URLs
 
 - Frontend: `http://localhost:5173`
