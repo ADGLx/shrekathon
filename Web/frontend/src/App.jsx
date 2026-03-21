@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 const PLAYER_ID_STORAGE_KEY = "player_id";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8001";
 
 const createRandomPlayerId = () => {
   if (window.crypto?.getRandomValues) {
@@ -47,7 +48,7 @@ export default function App() {
     setJoinState({ status: "loading", message: "Joining game..." });
 
     try {
-      const response = await fetch("http://localhost:8001/join-game", {
+      const response = await fetch(`${API_BASE_URL}/join-game`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

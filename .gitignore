@@ -99,6 +99,7 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
 AGENTS.md
+.env
 
 # Web app artifacts
 Web/frontend/node_modules/
