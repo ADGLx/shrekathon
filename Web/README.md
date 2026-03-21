@@ -24,6 +24,7 @@ docker compose up --build
 - `POST /create-game`
 - `POST /join-game`
 - `POST /get-game`
+- `POST /get-game-public`
 - `POST /end-game`
 - `POST /start-round`
 - `POST /get-round`
@@ -92,6 +93,16 @@ Get game example response:
 ```
 
 `all_connected` becomes `true` and `status` becomes `ready` once every player slot is connected.
+
+Get game public example request:
+
+```bash
+curl -X POST http://localhost:8001/get-game-public \
+  -H "content-type: application/json" \
+  -d '{"game_id":"1234"}'
+```
+
+`/get-game-public` returns the same payload as `/get-game` without requiring `x-api-password`.
 
 Start round example request:
 

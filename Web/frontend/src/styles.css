@@ -154,6 +154,41 @@ body {
   color: #ffd2b5;
 }
 
+.lobby-meta {
+  margin: 0.35rem 0;
+  color: var(--text-mid);
+  font-size: 0.92rem;
+}
+
+.connected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.75rem 0 1rem;
+  min-height: 2rem;
+}
+
+.player-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(146, 213, 79, 0.2);
+  border: 1px solid rgba(205, 234, 122, 0.35);
+  color: var(--text-light);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.connected-empty {
+  color: var(--text-mid);
+  font-size: 0.9rem;
+}
+
+.leave-button {
+  background: linear-gradient(180deg, #d7ba78 0%, #b08f4f 62%, #8e6f3a 100%);
+}
+
 .debug-menu {
   margin-top: 0.9rem;
   border-top: 1px solid rgba(211, 230, 164, 0.2);

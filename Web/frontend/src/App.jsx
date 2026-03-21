@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const PLAYER_ID_STORAGE_KEY = "player_id";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8001";
+const LOBBY_POLL_INTERVAL_MS = 1500;
 
 const createRandomPlayerId = () => {
   if (window.crypto?.getRandomValues) {
@@ -30,7 +31,10 @@ const getOrCreatePlayerId = () => {
 
 export default function App() {
   const [gameCode, setGameCode] = useState("");
+  const [screen, setScreen] = useState("join");
   const [joinState, setJoinState] = useState({ status: "idle", message: "" });
+  const [lobbyState, setLobbyState] = useState({ status: "idle", message: "" });
+  const [lobbyData, setLobbyData] = useState(null);
   const [playerId, setPlayerId] = useState(getOrCreatePlayerId);
 
   const isCodeValid = useMemo(() => gameCode.length === 4, [gameCode]);
@@ -64,18 +68,76 @@ export default function App() {
         return;
       }
 
-      if (data.status === "already_joined") {
-        setJoinState({ status: "success", message: `Already joined as player ${playerId}.` });
-        return;
-      }
-
       setJoinState({
         status: "success",
-        message: `Joined game ${gameCode} as player ${playerId}.`,
+        message:
+          data.status === "already_joined"
+            ? `Already joined as player ${playerId}.`
+            : `Joined game ${gameCode} as player ${playerId}.`,
       });
+      setLobbyState({ status: "loading", message: "Loading lobby..." });
+      setLobbyData(null);
+      setScreen("lobby");
     } catch {
       setJoinState({ status: "error", message: "Network error while joining game" });
     }
+  };
+
+  useEffect(() => {
+    if (screen !== "lobby" || gameCode.length !== 4) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    const pollLobby = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/get-game-public`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ game_id: gameCode }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          const errorMessage = typeof data.detail === "string" ? data.detail : "Unable to load lobby";
+          if (!cancelled) {
+            setLobbyState({ status: "error", message: errorMessage });
+          }
+          return;
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        setLobbyData(data);
+        setLobbyState({
+          status: data.all_connected ? "success" : "loading",
+          message: data.all_connected ? "All players connected. Ready to start!" : "Waiting for players...",
+        });
+      } catch {
+        if (!cancelled) {
+          setLobbyState({ status: "error", message: "Network error while loading lobby" });
+        }
+      }
+    };
+
+    pollLobby();
+    const intervalId = window.setInterval(pollLobby, LOBBY_POLL_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [screen, gameCode]);
+
+  const handleLeaveLobby = () => {
+    setScreen("join");
+    setLobbyData(null);
+    setLobbyState({ status: "idle", message: "" });
   };
 
   const handleRegeneratePlayerId = () => {
@@ -83,7 +145,61 @@ export default function App() {
     window.localStorage.setItem(PLAYER_ID_STORAGE_KEY, String(nextPlayerId));
     setPlayerId(nextPlayerId);
     setJoinState({ status: "idle", message: "" });
+    if (screen === "lobby") {
+      setScreen("join");
+      setLobbyData(null);
+      setLobbyState({ status: "idle", message: "" });
+    }
   };
+
+  const connectedPlayers = lobbyData?.connected_players ?? [];
+
+  if (screen === "lobby") {
+    return (
+      <main className="page">
+        <section className="menu-card" aria-labelledby="lobby-title">
+          <p className="tagline">Shrekathon</p>
+          <h1 id="lobby-title" className="title">
+            Lobby
+          </h1>
+
+          <p className="lobby-meta">Game ID: {gameCode}</p>
+          <p className="lobby-meta">Player ID: {playerId}</p>
+          <p className="lobby-meta">
+            Connected: {lobbyData?.connected_count ?? 0} / {lobbyData?.amount_of_players ?? "-"}
+          </p>
+
+          <p className={`join-status join-status-${lobbyState.status}`} aria-live="polite">
+            {lobbyState.message}
+          </p>
+
+          <div className="connected-list" aria-label="Connected players">
+            {connectedPlayers.length > 0 ? (
+              connectedPlayers.map((connectedPlayerId) => (
+                <span key={connectedPlayerId} className="player-chip">
+                  #{connectedPlayerId}
+                </span>
+              ))
+            ) : (
+              <span className="connected-empty">No players connected yet.</span>
+            )}
+          </div>
+
+          <button type="button" className="join-button leave-button" onClick={handleLeaveLobby}>
+            Leave Lobby
+          </button>
+
+          <details className="debug-menu">
+            <summary>Debug</summary>
+            <p className="debug-row">Stored player_id: {playerId}</p>
+            <button type="button" className="debug-button" onClick={handleRegeneratePlayerId}>
+              Regenerate Player ID
+            </button>
+          </details>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="page">

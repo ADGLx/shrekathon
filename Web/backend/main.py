@@ -27,6 +27,21 @@ game_player_limits: dict[str, int] = {}
 game_players: dict[str, set[int]] = {}
 
 
+def _build_game_status(game_id: str) -> dict[str, str | int | bool | list[int]]:
+    amount_of_players = game_player_limits[game_id]
+    connected_players = sorted(game_players[game_id])
+    connected_count = len(connected_players)
+
+    return {
+        "game_id": game_id,
+        "amount_of_players": amount_of_players,
+        "connected_players": connected_players,
+        "connected_count": connected_count,
+        "all_connected": connected_count == amount_of_players,
+        "status": "ready" if connected_count == amount_of_players else "waiting",
+    }
+
+
 def _verify_create_game_password(x_api_password: str | None) -> None:
     expected_password = os.getenv(CREATE_GAME_PASSWORD_ENV)
     if not expected_password:
@@ -202,18 +217,20 @@ def get_game(
             detail="Game not found",
         )
 
-    amount_of_players = game_player_limits[game_id]
-    connected_players = sorted(game_players[game_id])
-    connected_count = len(connected_players)
+    return _build_game_status(game_id)
 
-    return {
-        "game_id": game_id,
-        "amount_of_players": amount_of_players,
-        "connected_players": connected_players,
-        "connected_count": connected_count,
-        "all_connected": connected_count == amount_of_players,
-        "status": "ready" if connected_count == amount_of_players else "waiting",
-    }
+
+@app.post("/get-game-public")
+def get_game_public(
+    game_id: str = Body(embed=True),
+) -> dict[str, str | int | bool | list[int]]:
+    if game_id not in game_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game not found",
+        )
+
+    return _build_game_status(game_id)
 
 
 @app.post("/start-round")
