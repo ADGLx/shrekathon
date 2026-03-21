@@ -1,0 +1,35 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System.Collections.Generic;
+
+public class CharacterManager : MonoBehaviour
+
+{
+
+
+
+
+
+  [Header("UI References")]
+    [SerializeField] private Image      portraitImage;
+    [SerializeField] private TextMeshProUGUI nameLabel;
+    [SerializeField] private TextMeshProUGUI descriptionLabel;
+
+    [Header("Entrance Animation")]
+    [SerializeField] private Animator   characterAnimator;
+
+
+    public void populate(PitchData data) {
+      if (data == null) {
+        Debug.LogError("[CharacterManager] Populate called with null PitchData.");
+        return;
+      }
+
+      portraitImage.sprite = data.characterSprite;
+      nameLabel.text = data.characterName;
+      //descriptionLabel.text = data.characterDescription;
+
+      Debug.Log($"[CharacterManager] Populated character: {data.characterName}");
+    }
+}

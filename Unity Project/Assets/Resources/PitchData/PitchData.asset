@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a54d88f7e73bdd0a92c58d14496dbec, type: 3}
+  m_Name: PitchData
+  m_EditorClassIdentifier: Assembly-CSharp::PitchData
+  characterName: Rumpelstiltskin
+  characterDescription: Fucking weird
+  characterSprite: {fileID: -6010882044385638185, guid: aac28aa6380807736bde40d276b5fdf5, type: 3}
+  contractTitle: Soulbinder
+  contractSprite: {fileID: 8957324059118975939, guid: c90ec6189b451b689baf62a6afd2aff7, type: 3}

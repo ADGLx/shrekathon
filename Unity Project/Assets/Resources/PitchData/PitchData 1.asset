@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a54d88f7e73bdd0a92c58d14496dbec, type: 3}
+  m_Name: PitchData 1
+  m_EditorClassIdentifier: Assembly-CSharp::PitchData
+  characterName: Fairy Godmother
+  characterDescription: fairy
+  characterSprite: {fileID: 8628415211545139247, guid: b0aab8b59c845997ab49d6fc1a3f1fda, type: 3}
+  contractTitle: Magic
+  contractSprite: {fileID: 3843231544584785974, guid: c02003636bbd1ea0b820524840d97f03, type: 3}
