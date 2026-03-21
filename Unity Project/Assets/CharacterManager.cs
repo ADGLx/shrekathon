@@ -20,7 +20,7 @@ public class CharacterManager : MonoBehaviour
     [SerializeField] private Animator   characterAnimator;
 
 
-    public void populate(PitchData data) {
+    public void Populate(PitchData data) {
       if (data == null) {
         Debug.LogError("[CharacterManager] Populate called with null PitchData.");
         return;
@@ -32,4 +32,12 @@ public class CharacterManager : MonoBehaviour
 
       Debug.Log($"[CharacterManager] Populated character: {data.characterName}");
     }
+    public void Show()
+  {
+    gameObject.SetActive(true);
+  }
+    public void Hide()
+  {
+    gameObject.SetActive(false);
+  }
 }

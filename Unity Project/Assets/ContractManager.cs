@@ -9,7 +9,7 @@ public class ContractManager : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Image Contract;
 
-    public void populate(PitchData data) {
+    public void Populate(PitchData data) {
       if (data == null) {
         Debug.LogError("[ContractManager] Populate called with null PitchData.");
         return;
@@ -19,4 +19,12 @@ public class ContractManager : MonoBehaviour
 
       Debug.Log($"[ContractManager] Populated contract: {data.contractTitle}");
     }
+    public void Show()
+  {
+    gameObject.SetActive(true);
+  }
+    public void Hide()
+  {
+    gameObject.SetActive(false);
+  }
 }

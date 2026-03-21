@@ -4,7 +4,7 @@ using TMPro;
 
 [RequireComponent(typeof(CharacterManager))]
 [RequireComponent(typeof(ContractManager))]
-public class PitchObject : MonoBehaviour
+public class DealManager : MonoBehaviour
 {
     // ------------------------------------------------------------------ //
     //  Component References (auto-fetched or wired in Inspector)
@@ -12,6 +12,7 @@ public class PitchObject : MonoBehaviour
     [Header("Sub-components (auto-resolved if left empty)")]
     [SerializeField] private CharacterManager characterManager;
     [SerializeField] private ContractManager  contractManager;
+
 
     // The data asset currently loaded into this pitch
     public PitchData CurrentData { get; private set; }
@@ -36,19 +37,31 @@ public class PitchObject : MonoBehaviour
     /// Load a PitchData asset into both sub-components without showing anything yet.
     /// Call this before transitioning into the pitch scene so data is ready instantly.
     /// </summary>
+    /// 
+    
     public void Load(PitchData data)
     {
         if (data == null)
         {
-            Debug.LogError("[PitchObject] Load called with null PitchData.");
+            Debug.LogError("[DealManager] Load called with null PitchData.");
             return;
         }
 
         CurrentData = data;
-        characterManager.populate(data);
-        contractManager.populate(data);
+        characterManager.Populate(data);
+        contractManager.Populate(data);
 
-        Debug.Log($"[PitchObject] Loaded pitch: {data.characterName} — {data.contractTitle}");
+        Debug.Log($"[DealManager] Loaded pitch: {data.characterName} — {data.contractTitle}");
+    }
+    public void displayDeal()
+    {
+        characterManager.Show();
+        contractManager.Show();
+    }
+    public void hideDeal()
+    {
+        characterManager.Hide();
+        contractManager.Hide();
     }
 
 }
