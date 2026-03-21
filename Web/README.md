@@ -23,6 +23,8 @@ docker compose up --build
 
 - `POST /create-game`
 - `POST /end-game`
+- `POST /start-round`
+- `POST /get-round`
 
 Example request:
 
@@ -50,3 +52,35 @@ curl -X POST http://localhost:8001/end-game \
   -H "x-api-password: your-password" \
   -d '{"game_id":"1234"}'
 ```
+
+Start round example request:
+
+```bash
+curl -X POST http://localhost:8001/start-round \
+  -H "content-type: application/json" \
+  -H "x-api-password: your-password" \
+  -d '{"game_id":"1234","time_limit_ms":30000}'
+```
+
+Start round example response:
+
+```json
+{"game_id":"1234","round_id":"5678","status":"started"}
+```
+
+Get round example request:
+
+```bash
+curl -X POST http://localhost:8001/get-round \
+  -H "content-type: application/json" \
+  -H "x-api-password: your-password" \
+  -d '{"game_id":"1234"}'
+```
+
+Get round example response:
+
+```json
+{"game_id":"1234","round_id":"5678","status":"ongoing"}
+```
+
+If the round timer has elapsed, status becomes `finished`.

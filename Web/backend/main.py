@@ -1,5 +1,7 @@
 import os
 import random
+import threading
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -20,6 +22,7 @@ app.add_middleware(
 CREATE_GAME_PASSWORD_ENV = "CREATE_GAME_PASSWORD"
 MAX_GAME_ID_ATTEMPTS = 10000
 game_ids: set[str] = set()
+game_rounds: dict[str, dict[str, str | int]] = {}
 
 
 def _verify_create_game_password(x_api_password: str | None) -> None:
@@ -50,6 +53,56 @@ def _generate_game_id() -> str:
     )
 
 
+def _generate_round_id() -> str:
+    active_round_ids = {round_data["round_id"] for round_data in game_rounds.values()}
+    for _ in range(MAX_GAME_ID_ATTEMPTS):
+        round_id = f"{random.randint(0, 9999):04d}"
+        if round_id not in active_round_ids:
+            return round_id
+
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="Unable to create round id",
+    )
+
+
+def _log_round_countdown(
+    game_id: str, round_id: str, started_at_ms: int, time_limit_ms: int
+) -> None:
+    end_at_ms = started_at_ms + time_limit_ms
+
+    while True:
+        current_round = game_rounds.get(game_id)
+        if not current_round or current_round["round_id"] != round_id:
+            return
+
+        now_ms = time.time_ns() // 1_000_000
+        remaining_ms = end_at_ms - now_ms
+        remaining_seconds = max(0, (remaining_ms + 999) // 1000)
+        print(
+            "Round timer: "
+            f"game_id={game_id}, round_id={round_id}, time_left_seconds={remaining_seconds}",
+            flush=True,
+        )
+
+        if remaining_ms <= 0:
+            print(f"Round finished: game_id={game_id}, round_id={round_id}", flush=True)
+            return
+
+        time.sleep(1)
+
+
+def _start_round_countdown_logger(
+    game_id: str, round_id: str, started_at_ms: int, time_limit_ms: int
+) -> None:
+    thread = threading.Thread(
+        target=_log_round_countdown,
+        args=(game_id, round_id, started_at_ms, time_limit_ms),
+        daemon=True,
+    )
+    thread.start()
+
+
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 
@@ -60,7 +113,7 @@ def create_game(
 ) -> dict[str, str | int]:
     _verify_create_game_password(x_api_password)
     game_id = _generate_game_id()
-    print(f"Game created: {game_id}, amount_of_players: {amount_of_players}")
+    print(f"Game created: {game_id}, amount_of_players: {amount_of_players}", flush=True)
     return {
         "game_id": game_id,
         "status": "created",
@@ -81,6 +134,73 @@ def end_game(
             detail="Game not found",
         )
 
+    game_rounds.pop(game_id, None)
     game_ids.remove(game_id)
-    print(f"Game ended: {game_id}")
+    print(f"Game ended: {game_id}", flush=True)
     return {"game_id": game_id, "status": "ended"}
+
+
+@app.post("/start-round")
+def start_round(
+    x_api_password: str | None = Header(default=None),
+    game_id: str = Body(embed=True),
+    time_limit_ms: int = Body(embed=True, ge=1),
+) -> dict[str, str]:
+    _verify_create_game_password(x_api_password)
+
+    if game_id not in game_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game not found",
+        )
+
+    round_id = _generate_round_id()
+    started_at_ms = time.time_ns() // 1_000_000
+    game_rounds[game_id] = {
+        "round_id": round_id,
+        "time_limit_ms": time_limit_ms,
+        "started_at_ms": started_at_ms,
+    }
+    print(
+        "Round started: "
+        f"game_id={game_id}, round_id={round_id}, time_limit_ms={time_limit_ms}",
+        flush=True,
+    )
+    _start_round_countdown_logger(game_id, round_id, started_at_ms, time_limit_ms)
+    return {
+        "game_id": game_id,
+        "round_id": round_id,
+        "status": "started",
+    }
+
+
+@app.post("/get-round")
+def get_round(
+    x_api_password: str | None = Header(default=None),
+    game_id: str = Body(embed=True),
+) -> dict[str, str]:
+    _verify_create_game_password(x_api_password)
+
+    if game_id not in game_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game not found",
+        )
+
+    round_data = game_rounds.get(game_id)
+    if not round_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Round not found",
+        )
+
+    now_ms = time.time_ns() // 1_000_000
+    started_at_ms = int(round_data["started_at_ms"])
+    time_limit_ms = int(round_data["time_limit_ms"])
+    round_status = "finished" if now_ms >= started_at_ms + time_limit_ms else "ongoing"
+
+    return {
+        "game_id": game_id,
+        "round_id": str(round_data["round_id"]),
+        "status": round_status,
+    }
