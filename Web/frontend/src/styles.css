@@ -17,7 +17,6 @@
   --card: rgba(29, 56, 24, 0.85);
   --text-light: #f3f8de;
   --text-mid: #d4e7b2;
-  background: radial-gradient(circle at 8% 10%, #b7de6f 0%, #84b84f 28%, #4e8e42 48%, #2d6234 72%, #1d4524 100%);
 }
 
 * {
@@ -28,6 +27,11 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text-light);
+  background-image: url("./assets/images/paper_background.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 .page {
