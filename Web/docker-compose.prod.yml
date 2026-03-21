@@ -1,5 +1,6 @@
 services:
   onion-api:
+    container_name: onion-api
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
@@ -8,6 +9,7 @@ services:
       - "8000"
 
   onion-frontend:
+    container_name: onion-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
