@@ -464,15 +464,25 @@ export default function App() {
     return (
       <main className="page">
         <TopBanner />
-        <section className="menu-card round-card" aria-labelledby="round-title">
-          <p className="tagline">Shrekathon</p>
-          <h1 id="round-title" className="title">
+        <section className="menu-card round-card round-layout" aria-labelledby="round-title">
+          <h1 id="round-title" className="title title-shrek round-title">
             Round Live
           </h1>
 
-          <p className="round-meta">Game ID: {gameCode}</p>
-          <p className="round-meta">Username: {playerName}</p>
-          <p className="round-meta">Round ID: {roundInfo?.roundId ?? "-"}</p>
+          <div className="round-info-grid" aria-label="Round details">
+            <div className="round-field">
+              <p className="lobby-label">Game Code</p>
+              <p className="lobby-value">{gameCode}</p>
+            </div>
+            <div className="round-field">
+              <p className="lobby-label">Username</p>
+              <p className="lobby-value">{playerName}</p>
+            </div>
+            <div className="round-field">
+              <p className="lobby-label">Round ID</p>
+              <p className="lobby-value">{roundInfo?.roundId ?? "-"}</p>
+            </div>
+          </div>
 
           <p className="round-timer" aria-live="polite">
             {roundRemainingSeconds}s
@@ -501,14 +511,23 @@ export default function App() {
     return (
       <main className="page">
         <TopBanner />
-        <section className="menu-card waiting-card" aria-labelledby="waiting-title">
-          <p className="tagline">Shrekathon</p>
-          <h1 id="waiting-title" className="title">
+        <section className="menu-card waiting-card waiting-layout" aria-labelledby="waiting-title">
+          <h1 id="waiting-title" className="title title-shrek waiting-title">
             Waiting
           </h1>
-          <p className="round-meta">Round finished. Waiting for next round.</p>
-          <p className="round-meta">Game ID: {gameCode}</p>
-          <p className="round-meta">Username: {playerName}</p>
+          <p className="waiting-message">Round finished. Waiting for next round.</p>
+
+          <div className="round-info-grid" aria-label="Waiting details">
+            <div className="round-field">
+              <p className="lobby-label">Game Code</p>
+              <p className="lobby-value">{gameCode}</p>
+            </div>
+            <div className="round-field">
+              <p className="lobby-label">Username</p>
+              <p className="lobby-value">{playerName}</p>
+            </div>
+          </div>
+
           <p className={`join-status join-status-${roundSubmitState.status}`}>{roundSubmitState.message}</p>
         </section>
       </main>
@@ -519,23 +538,34 @@ export default function App() {
     return (
       <main className="page">
         <TopBanner />
-        <section className="menu-card" aria-labelledby="lobby-title">
-          <p className="tagline">Shrekathon</p>
-          <h1 id="lobby-title" className="title">
+        <section className="menu-card lobby-layout" aria-labelledby="lobby-title">
+          <h1 id="lobby-title" className="title title-shrek lobby-title">
             Lobby
           </h1>
 
-          <p className="lobby-meta">Game ID: {gameCode}</p>
-          <p className="lobby-meta">Username: {playerName}</p>
-          <p className="lobby-meta">
-            Connected: {lobbyData?.connected_count ?? 0} / {lobbyData?.amount_of_players ?? "-"}
-          </p>
+          <div className="lobby-info-grid" aria-label="Lobby details">
+            <div className="lobby-field">
+              <p className="lobby-label">Game Code</p>
+              <p className="lobby-value">{gameCode}</p>
+            </div>
+            <div className="lobby-field">
+              <p className="lobby-label">Username</p>
+              <p className="lobby-value">{playerName}</p>
+            </div>
+            <div className="lobby-field">
+              <p className="lobby-label">Connected</p>
+              <p className="lobby-value">
+                {lobbyData?.connected_count ?? 0}/{lobbyData?.amount_of_players ?? "-"}
+              </p>
+            </div>
+          </div>
 
           <p className={`join-status join-status-${lobbyState.status}`} aria-live="polite">
             {lobbyState.message}
           </p>
 
-          <div className="connected-list" aria-label="Connected players">
+          <p className="lobby-label connected-heading">Connected Players</p>
+          <div className="connected-list lobby-connected-list" aria-label="Connected players">
             {connectedPlayers.length > 0 ? (
               connectedPlayers.map((connectedPlayerName) => (
                 <span key={connectedPlayerName} className="player-chip">
@@ -547,11 +577,14 @@ export default function App() {
             )}
           </div>
 
-          <button type="button" className="join-button leave-button" onClick={handleLeaveLobby}>
-            Leave Lobby
-          </button>
+          <div className="join-actions">
+            <button type="button" className="join-button join-game-button leave-button leave-lobby-button" onClick={handleLeaveLobby}>
+              <img className="join-game-button-icon" src={rightHandIcon} alt="" aria-hidden="true" />
+              <span>Leave Lobby</span>
+            </button>
+          </div>
 
-          <details className="debug-menu">
+          <details className="debug-menu lobby-debug-menu">
             <summary>Change Name</summary>
             <p className="debug-row">Current: {playerName}</p>
             <input
@@ -604,7 +637,7 @@ export default function App() {
         </p>
 
         <label className="code-label" htmlFor="game-code">
-          Enter 4-digit code
+          Game Code
         </label>
         <input
           id="game-code"
