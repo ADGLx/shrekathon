@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class ContractManager : MonoBehaviour
+public class ContractController : MonoBehaviour
 {
 
 

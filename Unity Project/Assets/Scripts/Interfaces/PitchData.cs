@@ -13,5 +13,8 @@ public class PitchData : ScriptableObject
     [Header("Contract")]
     public string       contractTitle;
     public Sprite       contractSprite;
-    
+
+    [Header("GamePlay")]
+    public int gameDurationMs;
+    public string gameType;
 }

@@ -3,14 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
-public class CharacterManager : MonoBehaviour
-
+public class CharacterController : MonoBehaviour
 {
-
-
-
-
-
   [Header("UI References")]
     [SerializeField] private Image      portraitImage;
     [SerializeField] private TextMeshProUGUI nameLabel;
