@@ -483,14 +483,18 @@ body {
   font-size: clamp(2.8rem, 13vw, 4rem);
   line-height: 1;
   font-weight: 900;
+  font-family: "KingsTitle", "Trebuchet MS", "Verdana", sans-serif;
   letter-spacing: 0.04em;
   color: #e6fbbf;
   text-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  text-align: center;
 }
 
 .round-action-onion {
   width: min(76vw, 300px);
   aspect-ratio: 1 / 1;
+  display: block;
+  margin-inline: auto;
   border: none;
   padding: 0;
   background-repeat: no-repeat;
