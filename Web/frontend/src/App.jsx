@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import onionSprite from "./assets/images/My_Onion_2.png";
+import bookOpenIcon from "./assets/images/Book_Open.png";
+import rightHandIcon from "./assets/images/M_HandR .png";
 
 const PLAYER_NAME_STORAGE_KEY = "player_name";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8001";
@@ -42,6 +44,18 @@ const getOrCreatePlayerName = () => {
   return assignedPlayerName;
 };
 
+const TopBanner = () => {
+  return (
+    <header className="top-banner" aria-label="Game title banner">
+      <img className="top-banner-icon" src={bookOpenIcon} alt="" aria-hidden="true" />
+      <div className="top-banner-copy">
+        <h1 className="title title-shrek top-banner-title">Clause and Effect</h1>
+        <p className="top-banner-subtitle">(Concordia Shrekathon 2026)</p>
+      </div>
+    </header>
+  );
+};
+
 export default function App() {
   const [gameCode, setGameCode] = useState("");
   const [screen, setScreen] = useState("join");
@@ -69,6 +83,19 @@ export default function App() {
   };
 
   const handleJoinClick = async () => {
+    const normalizedPlayerName = sanitizePlayerName(nameInput);
+
+    if (normalizedPlayerName.length === 0) {
+      setNameState({ status: "error", message: "Use 1-8 letters only." });
+      return;
+    }
+
+    if (normalizedPlayerName !== playerName) {
+      window.localStorage.setItem(PLAYER_NAME_STORAGE_KEY, normalizedPlayerName);
+      setPlayerName(normalizedPlayerName);
+      setNameInput(normalizedPlayerName);
+    }
+
     if (!isCodeValid) {
       return;
     }
@@ -81,7 +108,7 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ game_id: gameCode, player_name: playerName }),
+        body: JSON.stringify({ game_id: gameCode, player_name: normalizedPlayerName }),
       });
 
       const data = await response.json();
@@ -96,8 +123,8 @@ export default function App() {
         status: "success",
         message:
           data.status === "already_joined"
-            ? `Already joined as ${playerName}.`
-            : `Joined game ${gameCode} as ${playerName}.`,
+            ? `Already joined as ${normalizedPlayerName}.`
+            : `Joined game ${gameCode} as ${normalizedPlayerName}.`,
       });
       setLobbyState({ status: "loading", message: "Loading lobby..." });
       setLobbyData(null);
@@ -335,6 +362,21 @@ export default function App() {
 
   const handleNameInputChange = (event) => {
     setNameInput(sanitizePlayerName(event.target.value));
+    if (nameState.status !== "idle") {
+      setNameState({ status: "idle", message: "" });
+    }
+  };
+
+  const handleNameInputBlur = () => {
+    const nextPlayerName = sanitizePlayerName(nameInput);
+    if (nextPlayerName.length === 0) {
+      setNameState({ status: "error", message: "Use 1-8 letters only." });
+      return;
+    }
+
+    window.localStorage.setItem(PLAYER_NAME_STORAGE_KEY, nextPlayerName);
+    setPlayerName(nextPlayerName);
+    setNameInput(nextPlayerName);
     setNameState({ status: "idle", message: "" });
   };
 
@@ -421,6 +463,7 @@ export default function App() {
   if (screen === "round") {
     return (
       <main className="page">
+        <TopBanner />
         <section className="menu-card round-card" aria-labelledby="round-title">
           <p className="tagline">Shrekathon</p>
           <h1 id="round-title" className="title">
@@ -457,6 +500,7 @@ export default function App() {
   if (screen === "waiting") {
     return (
       <main className="page">
+        <TopBanner />
         <section className="menu-card waiting-card" aria-labelledby="waiting-title">
           <p className="tagline">Shrekathon</p>
           <h1 id="waiting-title" className="title">
@@ -474,6 +518,7 @@ export default function App() {
   if (screen === "lobby") {
     return (
       <main className="page">
+        <TopBanner />
         <section className="menu-card" aria-labelledby="lobby-title">
           <p className="tagline">Shrekathon</p>
           <h1 id="lobby-title" className="title">
@@ -534,11 +579,29 @@ export default function App() {
 
   return (
     <main className="page">
-      <section className="menu-card" aria-labelledby="join-game-title">
-        <p className="tagline">Shrekathon</p>
-        <h1 id="join-game-title" className="title title-shrek">
+      <TopBanner />
+      <section className="menu-card join-layout" aria-labelledby="join-game-title">
+        <h1 id="join-game-title" className="title title-shrek join-title">
           Join a Game
         </h1>
+
+        <label className="username-label" htmlFor="username-input">
+          Username
+        </label>
+        <input
+          id="username-input"
+          type="text"
+          autoComplete="nickname"
+          className="username-input"
+          value={nameInput}
+          onChange={handleNameInputChange}
+          onBlur={handleNameInputBlur}
+          maxLength={USERNAME_MAX_LENGTH}
+          placeholder="letters only"
+        />
+        <p className={`join-status join-status-${nameState.status}`} aria-live="polite">
+          {nameState.message}
+        </p>
 
         <label className="code-label" htmlFor="game-code">
           Enter 4-digit code
@@ -557,45 +620,24 @@ export default function App() {
           aria-describedby="code-help"
         />
         <p id="code-help" className="code-help" aria-live="polite">
-          {isCodeValid ? "Code looks good. Ready to join." : "Use exactly 4 numbers."}
+          {isCodeValid ? "Code looks good. Ready to join." : ""}
         </p>
 
-        <p className="player-id">Username: {playerName}</p>
-
-        <button
-          type="button"
-          className="join-button"
-          onClick={handleJoinClick}
-          disabled={!isCodeValid || joinState.status === "loading"}
-        >
-          {joinState.status === "loading" ? "Joining..." : "Join Game"}
-        </button>
+        <div className="join-actions">
+          <button
+            type="button"
+            className="join-button join-game-button"
+            onClick={handleJoinClick}
+            disabled={!isCodeValid || joinState.status === "loading"}
+          >
+            <img className="join-game-button-icon" src={rightHandIcon} alt="" aria-hidden="true" />
+            <span>{joinState.status === "loading" ? "Joining..." : "Join Game"}</span>
+          </button>
+        </div>
 
         <p className={`join-status join-status-${joinState.status}`} aria-live="polite">
           {joinState.message}
         </p>
-
-        <details className="debug-menu">
-          <summary>Change Name</summary>
-          <p className="debug-row">Current: {playerName}</p>
-          <input
-            type="text"
-            className="debug-input"
-            value={nameInput}
-            onChange={handleNameInputChange}
-            maxLength={USERNAME_MAX_LENGTH}
-            placeholder="letters only"
-          />
-          <div className="debug-actions">
-            <button type="button" className="debug-button" onClick={handleSaveName}>
-              Save Name
-            </button>
-            <button type="button" className="debug-button" onClick={handleRegeneratePlayerId}>
-              Random Name
-            </button>
-          </div>
-          <p className={`join-status join-status-${nameState.status}`}>{nameState.message}</p>
-        </details>
       </section>
     </main>
   );
