@@ -12,7 +12,7 @@ public class BrinkDealManager : DealManager
     protected override void RoundLogic()
     {
         // Implement specific logic for the brink round
-        Dictionary<string, List<PlayerPress>> playerPress = getPlayerPress();
+        Dictionary<string, List<PlayerPress>> playerPress = PlayerInputHandler.Instance.GetPlayerPress();
         /*@todo: impliment game modeLogic
         foreach (KeyValuePair<string, List<PlayerPress>> player in playerPress)
         {

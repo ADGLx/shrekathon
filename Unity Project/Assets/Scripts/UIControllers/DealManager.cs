@@ -13,7 +13,6 @@ public abstract class DealManager : MonoBehaviour
     //  Component References (auto-fetched or wired in Inspector)
     // ------------------------------------------------------------------ //
     [Header("Sub-components (auto-resolved if left empty)")]
-    protected readonly Dictionary<string, List<PlayerPress>> _playerPress = new Dictionary<string, List<PlayerPress>>();
     [SerializeField] protected CharacterController characterController;
     [SerializeField] protected ContractController contractController;
     [SerializeField] protected int gameDurationMs;
@@ -25,7 +24,7 @@ public abstract class DealManager : MonoBehaviour
     // ------------------------------------------------------------------ //
     //  Unity Lifecycle
     // ------------------------------------------------------------------ //
-    private bool _isRequestPending = false;
+    
     public event Action OnDestroyed;
 
     private void Awake()
@@ -41,17 +40,7 @@ public abstract class DealManager : MonoBehaviour
         RoundLogic();
     }
 
-    protected Dictionary<string, List<PlayerPress>> getPlayerPress()
-    {
-        if (!_isRequestPending)
-        {
-            _isRequestPending = true;
-            // _playerPress = someFunctionThatGetsPlayerPresses();
-            // return => _isRequestPending = false;
-        }
 
-        return _playerPress;
-    }
 
     // ------------------------------------------------------------------ //
     //  Public Lifecycle API  (called by RoundController)
