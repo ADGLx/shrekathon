@@ -1,0 +1,25 @@
+services:
+  onion-api:
+    container_name: onion-api
+    build:
+      context: ./backend
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/app
+
+  onion-frontend:
+    container_name: onion-frontend
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL_DEV:-http://localhost:8001}
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL_DEV:-http://localhost:8001}
+    depends_on:
+      - onion-api

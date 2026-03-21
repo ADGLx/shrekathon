@@ -1,0 +1,22 @@
+services:
+  onion-api:
+    container_name: onion-api
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    expose:
+      - "8000"
+
+  onion-frontend:
+    container_name: onion-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL_PROD:-/api}
+    restart: unless-stopped
+    ports:
+      - "82:80"
+    depends_on:
+      - onion-api

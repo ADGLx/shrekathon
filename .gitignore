@@ -97,3 +97,14 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+AGENTS.md
+.env
+
+# Web app artifacts
+Web/frontend/node_modules/
+Web/frontend/dist/
+Web/backend/__pycache__/
+Web/backend/.pytest_cache/
+Web/backend/.ruff_cache/
+Web/backend/.env
