@@ -13,4 +13,8 @@ public class CreateGameResponse
     public string status;
 
     public int amount_of_players;
+
+    // Optional fields if backend includes player names in create response.
+    public string[] connected_players;
+    public string[] player_names;
 }
