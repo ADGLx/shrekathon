@@ -107,6 +107,54 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
             });
     }
 
+    // Hook this directly to a Unity UI Button OnClick event.
+    // Ends the current game regardless of connected players.
+    public void EndGameFromButton()
+    {
+        if (isRequestInFlight)
+        {
+            return;
+        }
+
+        if (gameAPI == null)
+        {
+            SetError("GameAPI reference is missing.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(currentGameId))
+        {
+            SetError("No game_id available. Create a game first.");
+            return;
+        }
+
+        isRequestInFlight = true;
+        ClearError();
+
+        EndGameRequest request = new EndGameRequest
+        {
+            game_id = currentGameId
+        };
+
+        gameAPI.EndGame(
+            request,
+            response =>
+            {
+                isRequestInFlight = false;
+                StopGetGamePolling();
+
+                if (playerNamesText != null)
+                {
+                    playerNamesText.text = "none yet";
+                }
+            },
+            error =>
+            {
+                isRequestInFlight = false;
+                SetError($"EndGame failed: {error}");
+            });
+    }
+
     private void SetLoadingState()
     {
         if (gameIdText != null)
