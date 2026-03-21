@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class RoundManager : MonoBehaviour
 {
+    [SerializeField] protected CharacterController characterController;
+    [SerializeField] protected ContractController contractController;
     [SerializeField] private PitchData[] pitchData;
     [SerializeField] private int numberOfRounds;
     private int currentRound;
@@ -21,11 +23,12 @@ public class RoundManager : MonoBehaviour
 
         // Handles isnstantiation
         DealManager dealManager;
-        if (currentPitch.gameType == "BrinkDeal")
+        if (currentPitch.gameType == "BRINK")
             dealManager = gameObject.AddComponent<BrinkDealManager>();
         else
             throw new Exception($"Unsupported game type: {currentPitch.gameType}");
 
+        dealManager.GetComponent<DealManager>().Init(characterController, contractController);
         dealManager.Load(pitchData[0]);
         WaitUntil dealIsLoaded = new WaitUntil(() => dealManager.CurrentData != null);
         StartCoroutine(dealIsLoaded);

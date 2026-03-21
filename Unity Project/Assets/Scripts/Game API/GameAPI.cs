@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class GameAPI : MonoBehaviour
 {
+    public static GameAPI Instance;
+
+    private void Awake()
+    {
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     [SerializeField] private HTTP_Client HTTP_Client;
 
     public void GetGame(GetGameRequest request, Action<GetGameResponse> onSuccess = null, Action<string> onError = null)

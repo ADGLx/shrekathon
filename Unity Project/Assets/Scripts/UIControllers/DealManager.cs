@@ -5,8 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEditor.Experimental.GraphView.GraphView;
 
-[RequireComponent(typeof(CharacterController))]
-[RequireComponent(typeof(ContractController))]
 public abstract class DealManager : MonoBehaviour
 {
     // ------------------------------------------------------------------ //
@@ -27,6 +25,12 @@ public abstract class DealManager : MonoBehaviour
     
     public event Action OnDestroyed;
 
+    public void Init(CharacterController characterControllerRef, ContractController contractControllerRef)
+    {
+        this.characterController = characterControllerRef;
+        this.contractController = contractControllerRef;
+    }
+
     private void Awake()
     {
         // Fall back to GetComponent if Inspector references are not set
@@ -39,8 +43,6 @@ public abstract class DealManager : MonoBehaviour
     protected virtual void Update() {
         RoundLogic();
     }
-
-
 
     // ------------------------------------------------------------------ //
     //  Public Lifecycle API  (called by RoundController)

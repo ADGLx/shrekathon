@@ -17,6 +17,9 @@ public class PlayerInputHandler : MonoBehaviour
 
     private void Awake()
     {
+        this.gameAPI = GameObject.Find("GameAPI").GetComponent<GameAPI>();
+        print($"Game API found:{gameAPI.ToString()}");
+
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);   // kill duplicate (e.g. if scene reloads)
@@ -29,6 +32,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public IEnumerator StartPlayerInputCollection(string currentGameId)
     {
+        print("Starting player input collection...");
         while (true)
         {
             bool isDone = false;

@@ -17,3 +17,5 @@ MonoBehaviour:
   characterSprite: {fileID: -6010882044385638185, guid: aac28aa6380807736bde40d276b5fdf5, type: 3}
   contractTitle: Soulbinder
   contractSprite: {fileID: 8957324059118975939, guid: c90ec6189b451b689baf62a6afd2aff7, type: 3}
+  gameDurationMs: 30000
+  gameType: BRINK
