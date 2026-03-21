@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import onionSprite from "./assets/images/My_Onion_2.png";
 
 const PLAYER_NAME_STORAGE_KEY = "player_name";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8001";
@@ -6,6 +7,7 @@ const LOBBY_POLL_INTERVAL_MS = 1500;
 const USERNAME_MAX_LENGTH = 8;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz";
 const ROUND_BUTTON_FEEDBACK_MS = 180;
+const ONION_SPRITE_FRAME_COUNT = 8;
 
 const createRandomPlayerName = () => {
   const nameLength = 6;
@@ -54,6 +56,7 @@ export default function App() {
   const [roundButtonPressed, setRoundButtonPressed] = useState(false);
   const [roundPresses, setRoundPresses] = useState([]);
   const [activePressStartOffsetMs, setActivePressStartOffsetMs] = useState(null);
+  const [onionFrame, setOnionFrame] = useState(0);
   const [submittedRoundId, setSubmittedRoundId] = useState(null);
   const [roundSubmitState, setRoundSubmitState] = useState({ status: "idle", message: "" });
   const pressFeedbackTimeoutRef = useRef(null);
@@ -103,6 +106,7 @@ export default function App() {
       setRoundButtonPressed(false);
       setRoundPresses([]);
       setActivePressStartOffsetMs(null);
+      setOnionFrame(0);
       setSubmittedRoundId(null);
       setRoundSubmitState({ status: "idle", message: "" });
       setScreen("lobby");
@@ -151,6 +155,7 @@ export default function App() {
             setRoundPresses([]);
             setActivePressStartOffsetMs(null);
             setRoundButtonPressed(false);
+            setOnionFrame(0);
             setSubmittedRoundId(null);
             setRoundSubmitState({ status: "idle", message: "" });
           }
@@ -300,6 +305,7 @@ export default function App() {
     setRoundButtonPressed(false);
     setRoundPresses([]);
     setActivePressStartOffsetMs(null);
+    setOnionFrame(0);
     setSubmittedRoundId(null);
     setRoundSubmitState({ status: "idle", message: "" });
   };
@@ -320,6 +326,7 @@ export default function App() {
       setRoundButtonPressed(false);
       setRoundPresses([]);
       setActivePressStartOffsetMs(null);
+      setOnionFrame(0);
       setSubmittedRoundId(null);
       setRoundSubmitState({ status: "idle", message: "" });
       setJoinState({ status: "idle", message: "Name changed. Join lobby again." });
@@ -352,6 +359,7 @@ export default function App() {
       setRoundButtonPressed(false);
       setRoundPresses([]);
       setActivePressStartOffsetMs(null);
+      setOnionFrame(0);
       setSubmittedRoundId(null);
       setRoundSubmitState({ status: "idle", message: "" });
       setJoinState({ status: "idle", message: "Name changed. Join lobby again." });
@@ -377,6 +385,7 @@ export default function App() {
 
     const startOffsetMs = getCurrentRoundOffsetMs();
     setActivePressStartOffsetMs(startOffsetMs);
+    setOnionFrame((currentFrame) => (currentFrame + 1) % ONION_SPRITE_FRAME_COUNT);
     setRoundButtonPressed(true);
   };
 
@@ -428,14 +437,18 @@ export default function App() {
 
           <button
             type="button"
-            className={`round-action-button ${roundButtonPressed ? "round-action-button-pressed" : ""}`}
+            className={`round-action-onion ${roundButtonPressed ? "round-action-onion-pressed" : ""}`}
+            style={{
+              backgroundImage: `url(${onionSprite})`,
+              backgroundSize: `${ONION_SPRITE_FRAME_COUNT * 100}% 100%`,
+              backgroundPosition: `${(onionFrame / (ONION_SPRITE_FRAME_COUNT - 1)) * 100}% center`,
+            }}
+            aria-label="Tap onion"
             onPointerDown={handleRoundButtonDown}
             onPointerUp={handleRoundButtonUp}
             onPointerCancel={handleRoundButtonUp}
             onPointerLeave={handleRoundButtonUp}
-          >
-            TAP
-          </button>
+          />
         </section>
       </main>
     );
