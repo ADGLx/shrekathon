@@ -100,7 +100,7 @@ public abstract class DealManager : MonoBehaviour
         */
 
         OnDestroyed?.Invoke();
-        Destroy(gameObject);
+        Destroy(this);
     }
 
     public void displayDeal()

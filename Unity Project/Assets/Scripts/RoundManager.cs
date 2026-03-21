@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class RoundManager : MonoBehaviour
 {
-    [SerializeField] private DealManager dealController;
     [SerializeField] private PitchData[] pitchData;
     [SerializeField] private int numberOfRounds;
     private int currentRound;
@@ -15,19 +14,34 @@ public class RoundManager : MonoBehaviour
         StartRound();
     }
 
-    void StartRound() {
-        dealController.Load(pitchData[0]);  // TODO: load based on pitchOrderData
+    public void StartRound()
+    {
+        PitchData currentPitch = pitchData[currentRound];
+        currentRound++;
 
-        WaitUntil dealIsLoaded = new WaitUntil(() => dealController.CurrentData != null);
+        // Handles isnstantiation
+        DealManager dealManager;
+        if (currentPitch.gameType == "BrinkDeal")
+            dealManager = gameObject.AddComponent<BrinkDealManager>();
+        else
+            throw new Exception($"Unsupported game type: {currentPitch.gameType}");
+
+        dealManager.Load(pitchData[0]);
+        WaitUntil dealIsLoaded = new WaitUntil(() => dealManager.CurrentData != null);
         StartCoroutine(dealIsLoaded);
 
-        dealController.displayDeal();
+        dealManager.OnDestroyed += EndRound();
+        dealManager.displayDeal();
     }
 
-    void EndRound()
+    System.Action EndRound()
     {
-        if (numberOfRounds >= currentRound)
-            print("TODO: End of Game Logic;");
+        return () => {
+            if (numberOfRounds >= currentRound)
+                print("TODO: End of Game Logic;");
+            else
+                StartRound();
+        };
     }
 
     // Update is called once per frame
