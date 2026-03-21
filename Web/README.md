@@ -26,7 +26,11 @@ docker compose up --build
 Example request:
 
 ```bash
-curl -X POST http://localhost:8001/create-game
+cp backend/.env.example backend/.env
+# then set CREATE_GAME_PASSWORD in backend/.env
+
+curl -X POST http://localhost:8001/create-game \
+  -H "x-api-password: your-password"
 ```
 
 Example response:

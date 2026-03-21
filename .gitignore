@@ -106,3 +106,4 @@ Web/frontend/dist/
 Web/backend/__pycache__/
 Web/backend/.pytest_cache/
 Web/backend/.ruff_cache/
+Web/backend/.env
