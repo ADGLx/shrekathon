@@ -28,6 +28,7 @@ docker compose up --build
 - `POST /end-game`
 - `POST /start-round`
 - `POST /get-round`
+- `POST /submit-round-presses`
 
 Example request:
 
@@ -104,6 +105,14 @@ curl -X POST http://localhost:8001/get-game-public \
 
 `/get-game-public` returns the same payload as `/get-game` without requiring `x-api-password`.
 
+Both `/get-game` and `/get-game-public` also include current round fields:
+
+- `round_id`: current round id or `null` when no round exists yet
+- `round_status`: `none`, `ongoing`, or `finished`
+- `started_at_ms`: round start timestamp in ms, or `null`
+- `time_limit_ms`: configured round time limit in ms, or `null`
+- `remaining_ms`: remaining time in ms (`0` when finished/no active round)
+
 Start round example request:
 
 ```bash
@@ -131,7 +140,34 @@ curl -X POST http://localhost:8001/get-round \
 Get round example response:
 
 ```json
-{"game_id":"1234","round_id":"5678","status":"ongoing"}
+{"game_id":"1234","round_id":"5678","status":"ongoing","presses_by_player":null}
 ```
 
 If the round timer has elapsed, status becomes `finished`.
+
+Get round finished response example:
+
+```json
+{"game_id":"1234","round_id":"5678","status":"finished","presses_by_player":{"shreky":[{"start_offset_ms":120,"end_offset_ms":450}],"fiona":[]}}
+```
+
+Frontend behavior note:
+
+- While in lobby, players poll `/get-game-public` and auto-transition to the round screen when `round_status` becomes `ongoing`.
+- After the timer ends, players transition to a waiting screen until the next round starts.
+
+Submit round presses example request:
+
+```bash
+curl -X POST http://localhost:8001/submit-round-presses \
+  -H "content-type: application/json" \
+  -d '{"game_id":"1234","round_id":"5678","player_name":"shreky","presses":[{"start_offset_ms":120,"end_offset_ms":450},{"start_offset_ms":980,"end_offset_ms":1150}]}'
+```
+
+Submit round presses example response:
+
+```json
+{"game_id":"1234","round_id":"5678","player_name":"shreky","status":"received","press_count":2}
+```
+
+`start_offset_ms` and `end_offset_ms` are relative to round start (`0..time_limit_ms`) for cleaner comparison across players.
