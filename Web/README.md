@@ -1,17 +1,36 @@
 All the web stuff goes here pls
 
+## Dockerized dev setup
 
-API: 
+This repo now includes:
 
+- `backend/`: FastAPI app
+- `frontend/`: React app (Vite)
+- `docker-compose.yml`: runs both services for development
 
+### Start everything
 
-- Unity sends:
-    - Create Game: (this also handles the creation, returns game ID)
-        - Amount of Players
+```bash
+docker compose up --build
+```
 
-    - Create Round: (Returns each players input, like when they pressed how many times etc after timer expires)
-        - Game ID
-        - Timer Limit
+### URLs
 
-    - End Game: (Save stuff to our DB)
-        - Game ID
+- Frontend: `http://localhost:5173`
+- Backend docs: `http://localhost:8001/docs`
+
+### API
+
+- `POST /create-game`
+
+Example request:
+
+```bash
+curl -X POST http://localhost:8001/create-game
+```
+
+Example response:
+
+```json
+{"game_id":"demo-123","status":"created"}
+```

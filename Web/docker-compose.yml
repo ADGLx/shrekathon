@@ -1,0 +1,21 @@
+services:
+  onion-api:
+    container_name: onion-api
+    build:
+      context: ./backend
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/app
+
+  onion-frontend:
+    container_name: onion-frontend
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - onion-api
