@@ -61,20 +61,20 @@ Join game example request:
 ```bash
 curl -X POST http://localhost:8001/join-game \
   -H "content-type: application/json" \
-  -d '{"game_id":"1234","player_id":0}'
+  -d '{"game_id":"1234","player_name":"shreky"}'
 ```
 
 Join game example response:
 
 ```json
-{"game_id":"1234","player_id":0,"status":"joined","joined_count":1}
+{"game_id":"1234","player_name":"shreky","status":"joined","joined_count":1}
 ```
 
 Notes:
 
-- `player_id` must be a non-negative integer.
-- Frontend generates a random per-device `player_id`, stores it in `localStorage`, and reuses it for joins.
-- Joining with the same `player_id` again returns status `already_joined`.
+- `player_name` must be letters only (`A-Z`/`a-z`) with max length `8`.
+- Frontend generates a random per-device username, stores it in `localStorage`, and reuses it for joins.
+- Joining with the same `player_name` again returns status `already_joined`.
 - Joining fails if the game is already full.
 
 Get game example request:

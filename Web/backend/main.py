@@ -24,10 +24,10 @@ MAX_GAME_ID_ATTEMPTS = 10000
 game_ids: set[str] = set()
 game_rounds: dict[str, dict[str, str | int]] = {}
 game_player_limits: dict[str, int] = {}
-game_players: dict[str, set[int]] = {}
+game_players: dict[str, set[str]] = {}
 
 
-def _build_game_status(game_id: str) -> dict[str, str | int | bool | list[int]]:
+def _build_game_status(game_id: str) -> dict[str, str | int | bool | list[str]]:
     amount_of_players = game_player_limits[game_id]
     connected_players = sorted(game_players[game_id])
     connected_count = len(connected_players)
@@ -164,7 +164,7 @@ def end_game(
 @app.post("/join-game")
 def join_game(
     game_id: str = Body(embed=True),
-    player_id: int = Body(embed=True, ge=0),
+    player_name: str = Body(embed=True, min_length=1, max_length=8, pattern=r"^[A-Za-z]+$"),
 ) -> dict[str, str | int]:
     if game_id not in game_ids:
         raise HTTPException(
@@ -174,10 +174,10 @@ def join_game(
 
     amount_of_players = game_player_limits[game_id]
     players = game_players[game_id]
-    if player_id in players:
+    if player_name in players:
         return {
             "game_id": game_id,
-            "player_id": player_id,
+            "player_name": player_name,
             "status": "already_joined",
             "joined_count": len(players),
         }
@@ -188,17 +188,17 @@ def join_game(
             detail="Game is full",
         )
 
-    players.add(player_id)
+    players.add(player_name)
     print(
         "Player joined: "
         "game_id="
-        f"{game_id}, player_id={player_id}, "
+        f"{game_id}, player_name={player_name}, "
         f"joined_count={len(players)}/{amount_of_players}",
         flush=True,
     )
     return {
         "game_id": game_id,
-        "player_id": player_id,
+        "player_name": player_name,
         "status": "joined",
         "joined_count": len(players),
     }
@@ -208,7 +208,7 @@ def join_game(
 def get_game(
     x_api_password: str | None = Header(default=None),
     game_id: str = Body(embed=True),
-) -> dict[str, str | int | bool | list[int]]:
+) -> dict[str, str | int | bool | list[str]]:
     _verify_create_game_password(x_api_password)
 
     if game_id not in game_ids:
@@ -223,7 +223,7 @@ def get_game(
 @app.post("/get-game-public")
 def get_game_public(
     game_id: str = Body(embed=True),
-) -> dict[str, str | int | bool | list[int]]:
+) -> dict[str, str | int | bool | list[str]]:
     if game_id not in game_ids:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

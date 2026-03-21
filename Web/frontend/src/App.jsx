@@ -1,32 +1,42 @@
 import { useEffect, useMemo, useState } from "react";
 
-const PLAYER_ID_STORAGE_KEY = "player_id";
+const PLAYER_NAME_STORAGE_KEY = "player_name";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8001";
 const LOBBY_POLL_INTERVAL_MS = 1500;
+const USERNAME_MAX_LENGTH = 8;
+const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz";
 
-const createRandomPlayerId = () => {
+const createRandomPlayerName = () => {
+  const nameLength = 6;
+
   if (window.crypto?.getRandomValues) {
-    const randomBuffer = new Uint32Array(1);
+    const randomBuffer = new Uint32Array(nameLength);
     window.crypto.getRandomValues(randomBuffer);
-    return randomBuffer[0];
+
+    return Array.from(randomBuffer, (value) => USERNAME_CHARS[value % USERNAME_CHARS.length]).join("");
   }
 
-  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+  return Array.from({ length: nameLength }, () => {
+    const index = Math.floor(Math.random() * USERNAME_CHARS.length);
+    return USERNAME_CHARS[index];
+  }).join("");
 };
 
-const getOrCreatePlayerId = () => {
-  const storedPlayerId = Number.parseInt(
-    window.localStorage.getItem(PLAYER_ID_STORAGE_KEY) ?? "",
-    10,
-  );
-  if (Number.isInteger(storedPlayerId) && storedPlayerId >= 0) {
-    return storedPlayerId;
+const sanitizePlayerName = (value) => value.replace(/[^A-Za-z]/g, "").slice(0, USERNAME_MAX_LENGTH);
+
+const getOrCreatePlayerName = () => {
+  const storedPlayerName = sanitizePlayerName(window.localStorage.getItem(PLAYER_NAME_STORAGE_KEY) ?? "");
+  if (storedPlayerName.length > 0) {
+    if (storedPlayerName !== window.localStorage.getItem(PLAYER_NAME_STORAGE_KEY)) {
+      window.localStorage.setItem(PLAYER_NAME_STORAGE_KEY, storedPlayerName);
+    }
+    return storedPlayerName;
   }
 
-  const assignedPlayerId = createRandomPlayerId();
+  const assignedPlayerName = createRandomPlayerName();
 
-  window.localStorage.setItem(PLAYER_ID_STORAGE_KEY, String(assignedPlayerId));
-  return assignedPlayerId;
+  window.localStorage.setItem(PLAYER_NAME_STORAGE_KEY, assignedPlayerName);
+  return assignedPlayerName;
 };
 
 export default function App() {
@@ -35,7 +45,9 @@ export default function App() {
   const [joinState, setJoinState] = useState({ status: "idle", message: "" });
   const [lobbyState, setLobbyState] = useState({ status: "idle", message: "" });
   const [lobbyData, setLobbyData] = useState(null);
-  const [playerId, setPlayerId] = useState(getOrCreatePlayerId);
+  const [playerName, setPlayerName] = useState(getOrCreatePlayerName);
+  const [nameInput, setNameInput] = useState(playerName);
+  const [nameState, setNameState] = useState({ status: "idle", message: "" });
 
   const isCodeValid = useMemo(() => gameCode.length === 4, [gameCode]);
 
@@ -57,7 +69,7 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ game_id: gameCode, player_id: playerId }),
+        body: JSON.stringify({ game_id: gameCode, player_name: playerName }),
       });
 
       const data = await response.json();
@@ -72,8 +84,8 @@ export default function App() {
         status: "success",
         message:
           data.status === "already_joined"
-            ? `Already joined as player ${playerId}.`
-            : `Joined game ${gameCode} as player ${playerId}.`,
+            ? `Already joined as ${playerName}.`
+            : `Joined game ${gameCode} as ${playerName}.`,
       });
       setLobbyState({ status: "loading", message: "Loading lobby..." });
       setLobbyData(null);
@@ -141,14 +153,42 @@ export default function App() {
   };
 
   const handleRegeneratePlayerId = () => {
-    const nextPlayerId = createRandomPlayerId();
-    window.localStorage.setItem(PLAYER_ID_STORAGE_KEY, String(nextPlayerId));
-    setPlayerId(nextPlayerId);
+    const nextPlayerName = createRandomPlayerName();
+    window.localStorage.setItem(PLAYER_NAME_STORAGE_KEY, nextPlayerName);
+    setPlayerName(nextPlayerName);
+    setNameInput(nextPlayerName);
+    setNameState({ status: "success", message: "Random name generated." });
     setJoinState({ status: "idle", message: "" });
     if (screen === "lobby") {
       setScreen("join");
       setLobbyData(null);
       setLobbyState({ status: "idle", message: "" });
+      setJoinState({ status: "idle", message: "Name changed. Join lobby again." });
+    }
+  };
+
+  const handleNameInputChange = (event) => {
+    setNameInput(sanitizePlayerName(event.target.value));
+    setNameState({ status: "idle", message: "" });
+  };
+
+  const handleSaveName = () => {
+    const nextPlayerName = sanitizePlayerName(nameInput);
+    if (nextPlayerName.length === 0) {
+      setNameState({ status: "error", message: "Use 1-8 letters only." });
+      return;
+    }
+
+    window.localStorage.setItem(PLAYER_NAME_STORAGE_KEY, nextPlayerName);
+    setPlayerName(nextPlayerName);
+    setNameInput(nextPlayerName);
+    setNameState({ status: "success", message: "Name saved." });
+
+    if (screen === "lobby") {
+      setScreen("join");
+      setLobbyData(null);
+      setLobbyState({ status: "idle", message: "" });
+      setJoinState({ status: "idle", message: "Name changed. Join lobby again." });
     }
   };
 
@@ -164,7 +204,7 @@ export default function App() {
           </h1>
 
           <p className="lobby-meta">Game ID: {gameCode}</p>
-          <p className="lobby-meta">Player ID: {playerId}</p>
+          <p className="lobby-meta">Username: {playerName}</p>
           <p className="lobby-meta">
             Connected: {lobbyData?.connected_count ?? 0} / {lobbyData?.amount_of_players ?? "-"}
           </p>
@@ -175,9 +215,9 @@ export default function App() {
 
           <div className="connected-list" aria-label="Connected players">
             {connectedPlayers.length > 0 ? (
-              connectedPlayers.map((connectedPlayerId) => (
-                <span key={connectedPlayerId} className="player-chip">
-                  #{connectedPlayerId}
+              connectedPlayers.map((connectedPlayerName) => (
+                <span key={connectedPlayerName} className="player-chip">
+                  {connectedPlayerName}
                 </span>
               ))
             ) : (
@@ -190,11 +230,25 @@ export default function App() {
           </button>
 
           <details className="debug-menu">
-            <summary>Debug</summary>
-            <p className="debug-row">Stored player_id: {playerId}</p>
-            <button type="button" className="debug-button" onClick={handleRegeneratePlayerId}>
-              Regenerate Player ID
-            </button>
+            <summary>Change Name</summary>
+            <p className="debug-row">Current: {playerName}</p>
+            <input
+              type="text"
+              className="debug-input"
+              value={nameInput}
+              onChange={handleNameInputChange}
+              maxLength={USERNAME_MAX_LENGTH}
+              placeholder="letters only"
+            />
+            <div className="debug-actions">
+              <button type="button" className="debug-button" onClick={handleSaveName}>
+                Save Name
+              </button>
+              <button type="button" className="debug-button" onClick={handleRegeneratePlayerId}>
+                Random Name
+              </button>
+            </div>
+            <p className={`join-status join-status-${nameState.status}`}>{nameState.message}</p>
           </details>
         </section>
       </main>
@@ -229,7 +283,7 @@ export default function App() {
           {isCodeValid ? "Code looks good. Ready to join." : "Use exactly 4 numbers."}
         </p>
 
-        <p className="player-id">Player ID: {playerId}</p>
+        <p className="player-id">Username: {playerName}</p>
 
         <button
           type="button"
@@ -245,11 +299,25 @@ export default function App() {
         </p>
 
         <details className="debug-menu">
-          <summary>Debug</summary>
-          <p className="debug-row">Stored player_id: {playerId}</p>
-          <button type="button" className="debug-button" onClick={handleRegeneratePlayerId}>
-            Regenerate Player ID
-          </button>
+          <summary>Change Name</summary>
+          <p className="debug-row">Current: {playerName}</p>
+          <input
+            type="text"
+            className="debug-input"
+            value={nameInput}
+            onChange={handleNameInputChange}
+            maxLength={USERNAME_MAX_LENGTH}
+            placeholder="letters only"
+          />
+          <div className="debug-actions">
+            <button type="button" className="debug-button" onClick={handleSaveName}>
+              Save Name
+            </button>
+            <button type="button" className="debug-button" onClick={handleRegeneratePlayerId}>
+              Random Name
+            </button>
+          </div>
+          <p className={`join-status join-status-${nameState.status}`}>{nameState.message}</p>
         </details>
       </section>
     </main>

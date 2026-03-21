@@ -209,6 +209,23 @@ body {
   font-size: 0.86rem;
 }
 
+.debug-input {
+  width: 100%;
+  border: 1px solid rgba(205, 229, 161, 0.35);
+  border-radius: 9px;
+  padding: 0.5rem 0.6rem;
+  background: rgba(17, 38, 15, 0.8);
+  color: var(--text-light);
+  font-size: 0.86rem;
+  margin-bottom: 0.55rem;
+}
+
+.debug-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .debug-button {
   border: 1px solid rgba(206, 231, 160, 0.45);
   border-radius: 9px;
