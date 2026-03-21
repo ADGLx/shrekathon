@@ -40,14 +40,23 @@
 }
 
 body {
+  position: relative;
   margin: 0;
   min-height: 100vh;
   color: var(--text-light);
+  background: #d8c29a;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   background-image: url("./assets/images/paper_background.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  background-attachment: fixed;
+  filter: brightness(0.94) contrast(0.98);
 }
 
 .page {
