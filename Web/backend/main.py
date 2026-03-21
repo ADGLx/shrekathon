@@ -54,11 +54,18 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 
 
 @app.post("/create-game")
-def create_game(x_api_password: str | None = Header(default=None)) -> dict[str, str]:
+def create_game(
+    x_api_password: str | None = Header(default=None),
+    amount_of_players: int = Body(embed=True, ge=1),
+) -> dict[str, str | int]:
     _verify_create_game_password(x_api_password)
     game_id = _generate_game_id()
-    print(f"Game created: {game_id}")
-    return {"game_id": game_id, "status": "created"}
+    print(f"Game created: {game_id}, amount_of_players: {amount_of_players}")
+    return {
+        "game_id": game_id,
+        "status": "created",
+        "amount_of_players": amount_of_players,
+    }
 
 
 @app.post("/end-game")

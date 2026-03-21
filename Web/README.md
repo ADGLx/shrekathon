@@ -31,13 +31,15 @@ cp backend/.env.example backend/.env
 # then set CREATE_GAME_PASSWORD in backend/.env
 
 curl -X POST http://localhost:8001/create-game \
+  -H "content-type: application/json" \
   -H "x-api-password: your-password"
+  -d '{"amount_of_players":4}'
 ```
 
 Example response:
 
 ```json
-{"game_id":"demo-123","status":"created"}
+{"game_id":"1234","status":"created","amount_of_players":4}
 ```
 
 End game example request:
