@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "ShrekTitle";
+  src: url("./assets/fonts/SHREK__.TTF") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   font-family: "Trebuchet MS", "Verdana", sans-serif;
@@ -56,6 +64,11 @@ body {
   font-size: clamp(1.9rem, 5vw, 2.5rem);
   letter-spacing: 0.03em;
   color: var(--text-light);
+  font-family: "ShrekTitle", "Trebuchet MS", "Verdana", sans-serif;
+}
+
+.title-shrek {
+  font-family: "ShrekTitle", "Trebuchet MS", "Verdana", sans-serif;
 }
 
 .code-label {

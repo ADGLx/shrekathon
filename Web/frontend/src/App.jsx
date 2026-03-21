@@ -523,7 +523,7 @@ export default function App() {
     <main className="page">
       <section className="menu-card" aria-labelledby="join-game-title">
         <p className="tagline">Shrekathon</p>
-        <h1 id="join-game-title" className="title">
+        <h1 id="join-game-title" className="title title-shrek">
           Join a Game
         </h1>
 
