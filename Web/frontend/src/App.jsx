@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import onionSprite from "./assets/images/My_Onion_2.png";
 import bookOpenIcon from "./assets/images/Book_Open.png";
 import rightHandIcon from "./assets/images/M_HandR .png";
@@ -142,6 +142,21 @@ export default function App() {
     }
   };
 
+  const handleGameEnded = useCallback((message = "Game ended by host. Returned to main menu.") => {
+    setScreen("join");
+    setLobbyData(null);
+    setLobbyState({ status: "idle", message: "" });
+    setRoundInfo(null);
+    setRoundRemainingMs(0);
+    setRoundButtonPressed(false);
+    setRoundPresses([]);
+    setActivePressStartOffsetMs(null);
+    setOnionFrame(0);
+    setSubmittedRoundId(null);
+    setRoundSubmitState({ status: "idle", message: "" });
+    setJoinState({ status: "error", message });
+  }, []);
+
   useEffect(() => {
     if (screen === "join" || gameCode.length !== 4) {
       return undefined;
@@ -161,6 +176,13 @@ export default function App() {
 
         const data = await response.json();
         if (!response.ok) {
+          const isGameNotFound =
+            response.status === 404 && typeof data.detail === "string" && data.detail === "Game not found";
+          if (isGameNotFound) {
+            handleGameEnded();
+            return;
+          }
+
           const errorMessage = typeof data.detail === "string" ? data.detail : "Unable to load lobby";
           if (!cancelled) {
             setLobbyState({ status: "error", message: errorMessage });
@@ -241,7 +263,7 @@ export default function App() {
       cancelled = true;
       window.clearInterval(intervalId);
     };
-  }, [screen, gameCode, roundInfo?.roundId, roundInfo?.timeLimitMs, activePressStartOffsetMs]);
+  }, [screen, gameCode, roundInfo?.roundId, roundInfo?.timeLimitMs, activePressStartOffsetMs, handleGameEnded]);
 
   useEffect(() => {
     if (screen !== "round") {
@@ -297,6 +319,13 @@ export default function App() {
         const data = await response.json();
 
         if (!response.ok) {
+          const isGameNotFound =
+            response.status === 404 && typeof data.detail === "string" && data.detail === "Game not found";
+          if (isGameNotFound) {
+            handleGameEnded();
+            return;
+          }
+
           const errorMessage = typeof data.detail === "string" ? data.detail : "Unable to send button presses";
           setRoundSubmitState({ status: "error", message: errorMessage });
           return;
@@ -313,7 +342,7 @@ export default function App() {
     };
 
     submitRoundPresses();
-  }, [screen, roundInfo, submittedRoundId, roundPresses, gameCode, playerName]);
+  }, [screen, roundInfo, submittedRoundId, roundPresses, gameCode, playerName, handleGameEnded]);
 
   useEffect(() => {
     return () => {
