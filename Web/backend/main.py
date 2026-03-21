@@ -23,6 +23,8 @@ CREATE_GAME_PASSWORD_ENV = "CREATE_GAME_PASSWORD"
 MAX_GAME_ID_ATTEMPTS = 10000
 game_ids: set[str] = set()
 game_rounds: dict[str, dict[str, str | int]] = {}
+game_player_limits: dict[str, int] = {}
+game_players: dict[str, set[int]] = {}
 
 
 def _verify_create_game_password(x_api_password: str | None) -> None:
@@ -113,6 +115,8 @@ def create_game(
 ) -> dict[str, str | int]:
     _verify_create_game_password(x_api_password)
     game_id = _generate_game_id()
+    game_player_limits[game_id] = amount_of_players
+    game_players[game_id] = set()
     print(f"Game created: {game_id}, amount_of_players: {amount_of_players}", flush=True)
     return {
         "game_id": game_id,
@@ -135,9 +139,81 @@ def end_game(
         )
 
     game_rounds.pop(game_id, None)
+    game_player_limits.pop(game_id, None)
+    game_players.pop(game_id, None)
     game_ids.remove(game_id)
     print(f"Game ended: {game_id}", flush=True)
     return {"game_id": game_id, "status": "ended"}
+
+
+@app.post("/join-game")
+def join_game(
+    game_id: str = Body(embed=True),
+    player_id: int = Body(embed=True, ge=0),
+) -> dict[str, str | int]:
+    if game_id not in game_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game not found",
+        )
+
+    amount_of_players = game_player_limits[game_id]
+    players = game_players[game_id]
+    if player_id in players:
+        return {
+            "game_id": game_id,
+            "player_id": player_id,
+            "status": "already_joined",
+            "joined_count": len(players),
+        }
+
+    if len(players) >= amount_of_players:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Game is full",
+        )
+
+    players.add(player_id)
+    print(
+        "Player joined: "
+        "game_id="
+        f"{game_id}, player_id={player_id}, "
+        f"joined_count={len(players)}/{amount_of_players}",
+        flush=True,
+    )
+    return {
+        "game_id": game_id,
+        "player_id": player_id,
+        "status": "joined",
+        "joined_count": len(players),
+    }
+
+
+@app.post("/get-game")
+def get_game(
+    x_api_password: str | None = Header(default=None),
+    game_id: str = Body(embed=True),
+) -> dict[str, str | int | bool | list[int]]:
+    _verify_create_game_password(x_api_password)
+
+    if game_id not in game_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Game not found",
+        )
+
+    amount_of_players = game_player_limits[game_id]
+    connected_players = sorted(game_players[game_id])
+    connected_count = len(connected_players)
+
+    return {
+        "game_id": game_id,
+        "amount_of_players": amount_of_players,
+        "connected_players": connected_players,
+        "connected_count": connected_count,
+        "all_connected": connected_count == amount_of_players,
+        "status": "ready" if connected_count == amount_of_players else "waiting",
+    }
 
 
 @app.post("/start-round")

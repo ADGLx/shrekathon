@@ -22,6 +22,8 @@ docker compose up --build
 ### API
 
 - `POST /create-game`
+- `POST /join-game`
+- `POST /get-game`
 - `POST /end-game`
 - `POST /start-round`
 - `POST /get-round`
@@ -52,6 +54,44 @@ curl -X POST http://localhost:8001/end-game \
   -H "x-api-password: your-password" \
   -d '{"game_id":"1234"}'
 ```
+
+Join game example request:
+
+```bash
+curl -X POST http://localhost:8001/join-game \
+  -H "content-type: application/json" \
+  -d '{"game_id":"1234","player_id":0}'
+```
+
+Join game example response:
+
+```json
+{"game_id":"1234","player_id":0,"status":"joined","joined_count":1}
+```
+
+Notes:
+
+- `player_id` must be a non-negative integer.
+- Frontend generates a random per-device `player_id`, stores it in `localStorage`, and reuses it for joins.
+- Joining with the same `player_id` again returns status `already_joined`.
+- Joining fails if the game is already full.
+
+Get game example request:
+
+```bash
+curl -X POST http://localhost:8001/get-game \
+  -H "content-type: application/json" \
+  -H "x-api-password: your-password" \
+  -d '{"game_id":"1234"}'
+```
+
+Get game example response:
+
+```json
+{"game_id":"1234","amount_of_players":4,"connected_players":[0,1],"connected_count":2,"all_connected":false,"status":"waiting"}
+```
+
+`all_connected` becomes `true` and `status` becomes `ready` once every player slot is connected.
 
 Start round example request:
 

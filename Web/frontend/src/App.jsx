@@ -1,7 +1,36 @@
 import { useMemo, useState } from "react";
 
+const PLAYER_ID_STORAGE_KEY = "player_id";
+
+const createRandomPlayerId = () => {
+  if (window.crypto?.getRandomValues) {
+    const randomBuffer = new Uint32Array(1);
+    window.crypto.getRandomValues(randomBuffer);
+    return randomBuffer[0];
+  }
+
+  return Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+};
+
+const getOrCreatePlayerId = () => {
+  const storedPlayerId = Number.parseInt(
+    window.localStorage.getItem(PLAYER_ID_STORAGE_KEY) ?? "",
+    10,
+  );
+  if (Number.isInteger(storedPlayerId) && storedPlayerId >= 0) {
+    return storedPlayerId;
+  }
+
+  const assignedPlayerId = createRandomPlayerId();
+
+  window.localStorage.setItem(PLAYER_ID_STORAGE_KEY, String(assignedPlayerId));
+  return assignedPlayerId;
+};
+
 export default function App() {
   const [gameCode, setGameCode] = useState("");
+  const [joinState, setJoinState] = useState({ status: "idle", message: "" });
+  const [playerId, setPlayerId] = useState(getOrCreatePlayerId);
 
   const isCodeValid = useMemo(() => gameCode.length === 4, [gameCode]);
 
@@ -10,13 +39,49 @@ export default function App() {
     setGameCode(digitsOnly);
   };
 
-  const handleJoinClick = () => {
+  const handleJoinClick = async () => {
     if (!isCodeValid) {
       return;
     }
 
-    // UI-only flow for now.
-    window.alert(`Joining game ${gameCode}`);
+    setJoinState({ status: "loading", message: "Joining game..." });
+
+    try {
+      const response = await fetch("http://localhost:8001/join-game", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ game_id: gameCode, player_id: playerId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorMessage = typeof data.detail === "string" ? data.detail : "Unable to join game";
+        setJoinState({ status: "error", message: errorMessage });
+        return;
+      }
+
+      if (data.status === "already_joined") {
+        setJoinState({ status: "success", message: `Already joined as player ${playerId}.` });
+        return;
+      }
+
+      setJoinState({
+        status: "success",
+        message: `Joined game ${gameCode} as player ${playerId}.`,
+      });
+    } catch {
+      setJoinState({ status: "error", message: "Network error while joining game" });
+    }
+  };
+
+  const handleRegeneratePlayerId = () => {
+    const nextPlayerId = createRandomPlayerId();
+    window.localStorage.setItem(PLAYER_ID_STORAGE_KEY, String(nextPlayerId));
+    setPlayerId(nextPlayerId);
+    setJoinState({ status: "idle", message: "" });
   };
 
   return (
@@ -47,14 +112,28 @@ export default function App() {
           {isCodeValid ? "Code looks good. Ready to join." : "Use exactly 4 numbers."}
         </p>
 
+        <p className="player-id">Player ID: {playerId}</p>
+
         <button
           type="button"
           className="join-button"
           onClick={handleJoinClick}
-          disabled={!isCodeValid}
+          disabled={!isCodeValid || joinState.status === "loading"}
         >
-          Join Game
+          {joinState.status === "loading" ? "Joining..." : "Join Game"}
         </button>
+
+        <p className={`join-status join-status-${joinState.status}`} aria-live="polite">
+          {joinState.message}
+        </p>
+
+        <details className="debug-menu">
+          <summary>Debug</summary>
+          <p className="debug-row">Stored player_id: {playerId}</p>
+          <button type="button" className="debug-button" onClick={handleRegeneratePlayerId}>
+            Regenerate Player ID
+          </button>
+        </details>
       </section>
     </main>
   );
