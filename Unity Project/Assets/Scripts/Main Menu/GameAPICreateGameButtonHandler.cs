@@ -83,28 +83,8 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
             return;
         }
 
-        isRequestInFlight = true;
-        ClearError();
-
-        StartRoundRequest request = new StartRoundRequest
-        {
-            game_id = currentGameId,
-            time_limit_ms = roundDurationSeconds * 1000
-        };
-
-        gameAPI.StartRound(
-            request,
-            response =>
-            {
-                isRequestInFlight = false;
-                StopGetGamePolling();
-                LoadGameScene();
-            },
-            error =>
-            {
-                isRequestInFlight = false;
-                SetError($"StartRound failed: {error}");
-            });
+        StopGetGamePolling();
+        LoadGameScene();
     }
 
     // Hook this directly to a Unity UI Button OnClick event.
@@ -201,6 +181,14 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
                 ? $" {string.Join(", ", names)}"
                 : "none yet";
         }
+
+        GameData gameData = new GameData
+        {
+            game_id = response.game_id,
+            amount_of_players = response.amount_of_players,
+            connected_players = GetNamesFromResponse(response)
+        };
+        GameAPI.Instance.StoreGameData(gameData);
     }
 
     private void StartGetGamePolling()

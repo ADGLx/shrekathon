@@ -6,6 +6,13 @@ public class GameAPI : MonoBehaviour
 {
     public static GameAPI Instance;
 
+    public GameData CurrentGameData { get; private set; }
+
+    public void StoreGameData(GameData data)
+    {
+        CurrentGameData = data;
+    }
+
     private void Awake()
     {
         Instance = this;
