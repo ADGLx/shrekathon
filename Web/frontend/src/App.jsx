@@ -464,25 +464,7 @@ export default function App() {
     return (
       <main className="page">
         <TopBanner />
-        <section className="menu-card round-card round-layout" aria-labelledby="round-title">
-          <h1 id="round-title" className="title title-shrek round-title">
-            Round Live
-          </h1>
-
-          <div className="round-info-grid" aria-label="Round details">
-            <div className="round-field">
-              <p className="lobby-label">Game Code</p>
-              <p className="lobby-value">{gameCode}</p>
-            </div>
-            <div className="round-field">
-              <p className="lobby-label">Username</p>
-              <p className="lobby-value">{playerName}</p>
-            </div>
-            <div className="round-field">
-              <p className="lobby-label">Round ID</p>
-              <p className="lobby-value">{roundInfo?.roundId ?? "-"}</p>
-            </div>
-          </div>
+        <section className="menu-card round-card" aria-label="Live round">
 
           <p className="round-timer" aria-live="polite">
             {roundRemainingSeconds}s
