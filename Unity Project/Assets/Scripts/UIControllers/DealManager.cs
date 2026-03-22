@@ -32,7 +32,7 @@ public abstract class DealManager : MonoBehaviour
     //  Unity Lifecycle
     // ------------------------------------------------------------------ //
     
-    public event Action OnDestroyed;
+    public event Action<Dictionary<string, int>, PitchData> OnDestroyed;
 
     public void Init(CharacterController characterControllerRef, ContractController contractControllerRef)
     {
@@ -190,7 +190,7 @@ public abstract class DealManager : MonoBehaviour
 
         Debug.Log($"[DealManager] Firing OnDestroyed event.", this);
         hideDeal();
-        OnDestroyed?.Invoke();
+        OnDestroyed?.Invoke(roundScores, CurrentData);
         Destroy(this);
     }
 

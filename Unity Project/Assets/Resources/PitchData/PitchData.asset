@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: PitchData
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
   characterName: Fairy
-  characterDescription: 
+  characterDescription: The one that tapped the most!
   characterSprite: {fileID: -286012882, guid: 098ac6d04506408439cb8c2e623a0131, type: 3}
   contractTitle: Soulbinder
   contractSprite: {fileID: -1275510493, guid: cc119ad61e51feb4eb0809e1c76562c2, type: 3}
-  gameDurationMs: 10000
+  gameDurationMs: 20000
   gameType: MAX_TAP
   max: 0
   min: 0

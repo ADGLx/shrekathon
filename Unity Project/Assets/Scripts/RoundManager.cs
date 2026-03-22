@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -26,6 +27,11 @@ public class RoundManager : MonoBehaviour
     [SerializeField] protected ContractController contractController;
     [SerializeField] private TMP_Text roundTimerText;
     [SerializeField] private TMP_Text betweenRoundTimerText;
+    [SerializeField] private GameObject betweenRoundSummaryContainer;
+    [SerializeField] private TMP_Text betweenRoundRoundNumberText;
+    [SerializeField] private TMP_Text playersWithPointsText;
+    [SerializeField] private TMP_Text playersWithoutPointsText;
+    [SerializeField] private TMP_Text contractSolutionText;
     [SerializeField] private Color timerStartColor = Color.white;
     [SerializeField] private Color timerEndColor = Color.red;
     [SerializeField] private PitchData[] pitchData;
@@ -123,6 +129,7 @@ public class RoundManager : MonoBehaviour
     public void StartRound()
     {
         SetBetweenRoundTimerVisible(false);
+        SetBetweenRoundSummaryVisible(false);
         UpdateBetweenRoundTimerText(0f);
         PlayRandomBetweenRoundClip();
         PitchData currentPitch = pitchData[CurrentRound];
@@ -161,16 +168,17 @@ public class RoundManager : MonoBehaviour
         dealManager.displayDeal();
     }
 
-    private System.Action EndRound()
+    private System.Action<Dictionary<string, int>, PitchData> EndRound()
     {
-        return () =>
+        return (roundScores, completedPitch) =>
         {
             Debug.Log($"[RoundManager] EndRound fired — round {CurrentRound + 1}/{totalRounds}", this);
+            UpdateBetweenRoundSummary(roundScores, completedPitch);
+
             if (CurrentRound + 1 >= totalRounds)
             {
-                Debug.Log("[RoundManager] All rounds complete — triggering EndGame.", this);
-                GameIsOver = true;
-                EndGame();
+                Debug.Log($"[RoundManager] Final round complete. Waiting {waitBeforeStartRoundSeconds}s before EndGame.", this);
+                StartCoroutine(WaitThenEndGame());
             }
             else
             {
@@ -185,6 +193,7 @@ public class RoundManager : MonoBehaviour
     {
         //characterController.Populate(betweenPitchScenes[CurrentRound]); // show next character silhouette in between rounds
         SetBetweenRoundTimerVisible(true);
+        SetBetweenRoundSummaryVisible(true);
         float waitDuration = Mathf.Max(0f, waitBeforeStartRoundSeconds);
         betweenRoundDurationSeconds = Mathf.Max(0.001f, waitDuration);
         float waitEndTime = Time.time + waitDuration;
@@ -201,6 +210,29 @@ public class RoundManager : MonoBehaviour
 
         Debug.Log("[RoundManager] WaitThenNextRound — proceeding to NextRound.", this);
         NextRound();
+    }
+
+    private IEnumerator WaitThenEndGame()
+    {
+        SetBetweenRoundTimerVisible(true);
+        SetBetweenRoundSummaryVisible(true);
+        float waitDuration = Mathf.Max(0f, waitBeforeStartRoundSeconds);
+        betweenRoundDurationSeconds = Mathf.Max(0.001f, waitDuration);
+        float waitEndTime = Time.time + waitDuration;
+
+        while (true)
+        {
+            float remaining = Mathf.Max(0f, waitEndTime - Time.time);
+            UpdateBetweenRoundTimerText(remaining);
+            if (remaining <= 0f)
+                break;
+
+            yield return null;
+        }
+
+        Debug.Log("[RoundManager] WaitThenEndGame — proceeding to EndGame.", this);
+        GameIsOver = true;
+        EndGame();
     }
 
     private void UpdateBetweenRoundTimerText(float secondsRemaining)
@@ -220,6 +252,102 @@ public class RoundManager : MonoBehaviour
             return;
 
         betweenRoundTimerText.gameObject.SetActive(isVisible);
+    }
+
+    private void SetBetweenRoundSummaryVisible(bool isVisible)
+    {
+        if (betweenRoundSummaryContainer != null)
+            betweenRoundSummaryContainer.SetActive(isVisible);
+    }
+
+    private void UpdateBetweenRoundSummary(Dictionary<string, int> roundScores, PitchData completedPitch)
+    {
+        List<string> connectedPlayers = GetConnectedPlayers().ToList();
+        Dictionary<string, List<PlayerPress>> playerPressByPlayer = PlayerInputHandler.Instance != null
+            ? PlayerInputHandler.Instance.GetPlayerPress()
+            : new Dictionary<string, List<PlayerPress>>();
+
+        List<string> playersWithPoints = new List<string>();
+        List<string> playersWithoutPoints = new List<string>();
+
+        foreach (string playerId in connectedPlayers)
+        {
+            int score = 0;
+            if (roundScores != null)
+                roundScores.TryGetValue(playerId, out score);
+
+            if (score > 0)
+                playersWithPoints.Add(FormatPlayerRoundSummary(playerId, playerPressByPlayer));
+            else
+                playersWithoutPoints.Add(FormatPlayerRoundSummary(playerId, playerPressByPlayer));
+        }
+
+        if (playersWithPointsText != null)
+            playersWithPointsText.text = playersWithPoints.Count > 0 ? string.Join("\n", playersWithPoints) : string.Empty;
+
+        if (playersWithoutPointsText != null)
+            playersWithoutPointsText.text = playersWithoutPoints.Count > 0 ? string.Join("\n", playersWithoutPoints) : string.Empty;
+
+        if (betweenRoundRoundNumberText != null)
+            betweenRoundRoundNumberText.text = $"Round {CurrentRound + 1}/{totalRounds}";
+
+        if (contractSolutionText != null)
+        {
+            string solution = completedPitch != null && !string.IsNullOrWhiteSpace(completedPitch.characterDescription)
+                ? completedPitch.characterDescription
+                : "No solution available.";
+            contractSolutionText.text = solution;
+        }
+    }
+
+    private string BuildPlayerSummary(string title, List<string> players)
+    {
+        if (players == null || players.Count == 0)
+            return $"{title}: None";
+
+        StringBuilder sb = new StringBuilder();
+        sb.Append(title);
+        sb.Append(": ");
+        sb.Append(string.Join(", ", players));
+        return sb.ToString();
+    }
+
+    private string FormatPlayerRoundSummary(string playerId, Dictionary<string, List<PlayerPress>> playerPressByPlayer)
+    {
+        int tapCount = 0;
+        int holdCount = 0;
+        int holdThresholdMs = PlayerInputHandler.DefaultLongTapThresholdMs;
+
+        if (playerPressByPlayer != null && playerPressByPlayer.TryGetValue(playerId, out List<PlayerPress> playerPresses) && playerPresses != null)
+        {
+            tapCount = playerPresses.Count;
+            foreach (PlayerPress press in playerPresses)
+            {
+                if (press != null && (press.end_offset_ms - press.start_offset_ms) >= holdThresholdMs)
+                    holdCount++;
+            }
+        }
+
+        if (holdCount > 0)
+            return $"{playerId} ({tapCount} taps, {holdCount} holds)";
+
+        return $"{playerId} ({tapCount} taps)";
+    }
+
+    private string GetPlayerDisplayName(string playerId)
+    {
+        if (gameData?.connected_players == null)
+            return playerId;
+
+        int playerIndex = Array.IndexOf(gameData.connected_players, playerId);
+        if (playerIndex >= 0 && playerIndex < playerIconDatas.Count)
+        {
+            string characterName = playerIconDatas[playerIndex].characterName;
+            if (!string.IsNullOrWhiteSpace(characterName))
+                return characterName;
+        }
+
+        return playerId;
     }
 
     // ---------------------------------------------------- //
