@@ -128,15 +128,21 @@ public class RoundManager : MonoBehaviour
         PitchData currentPitch = pitchData[CurrentRound];
         Debug.Log($"[RoundManager] StartRound — round {CurrentRound + 1}/{totalRounds} | pitch='{currentPitch.characterName}', gameType={currentPitch.gameType}, gameDurationMs={currentPitch.gameDurationMs}", this);
 
+        string normalizedGameType = (currentPitch.gameType ?? string.Empty).Trim().ToUpperInvariant();
+
         DealManager dealManager;
-        if (currentPitch.gameType == "MAX_TAP")
+        if (normalizedGameType == "MAX_TAP")
             dealManager = gameObject.AddComponent<MaxTapDeal>();
-        else if (currentPitch.gameType == "MIN_TAP")
+        else if (normalizedGameType == "MIN_TAP")
             dealManager = gameObject.AddComponent<MinTapDeal>();
-        else if (currentPitch.gameType == "RANGE_TAP")
+        else if (normalizedGameType == "RANGE_TAP")
             dealManager = gameObject.AddComponent<RangeTapDeal>();
+        else if (normalizedGameType == "LONGEST_HOLD")
+            dealManager = gameObject.AddComponent<LongestHoldDeal>();
+        else if (normalizedGameType == "LONG_TAP_COUNT")
+            dealManager = gameObject.AddComponent<LongTapCountDeal>();
         else
-            throw new Exception($"Unsupported game type: {currentPitch.gameType}");
+            throw new Exception($"Unsupported game type: '{currentPitch.gameType}' (normalized='{normalizedGameType}')");
 
         dealManager.Init(characterController, contractController);
         dealManager.SetRoundTimerText(roundTimerText);
