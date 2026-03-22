@@ -26,6 +26,8 @@ public class RoundManager : MonoBehaviour
     [SerializeField] protected ContractController contractController;
     [SerializeField] private TMP_Text roundTimerText;
     [SerializeField] private TMP_Text betweenRoundTimerText;
+    [SerializeField] private Color timerStartColor = Color.white;
+    [SerializeField] private Color timerEndColor = Color.red;
     [SerializeField] private PitchData[] pitchData;
     [SerializeField] private int waitBeforeStartRoundSeconds = 2;
     [SerializeField] private bool playAudioClips = true;
@@ -46,6 +48,7 @@ public class RoundManager : MonoBehaviour
     [SerializeField] GameObject[] playerControllerContainer; // assign in inspector - parent object to hold instantiated PlayerControllers
     protected Dictionary<string, PlayerController> playerControllers = new Dictionary<string, PlayerController>();
     protected Dictionary<string, int> playerPoints = new Dictionary<string, int>();
+    private float betweenRoundDurationSeconds = 0.001f;
 
     private void Awake()
     {
@@ -137,6 +140,7 @@ public class RoundManager : MonoBehaviour
 
         dealManager.Init(characterController, contractController);
         dealManager.SetRoundTimerText(roundTimerText);
+        dealManager.SetRoundTimerColors(timerStartColor, timerEndColor);
         dealManager.Load(currentPitch);
         dealManager.OnDestroyed += EndRound();
         StartCoroutine(WaitForLoadThenDisplay(dealManager));
@@ -176,6 +180,7 @@ public class RoundManager : MonoBehaviour
         //characterController.Populate(betweenPitchScenes[CurrentRound]); // show next character silhouette in between rounds
         SetBetweenRoundTimerVisible(true);
         float waitDuration = Mathf.Max(0f, waitBeforeStartRoundSeconds);
+        betweenRoundDurationSeconds = Mathf.Max(0.001f, waitDuration);
         float waitEndTime = Time.time + waitDuration;
 
         while (true)
@@ -198,7 +203,9 @@ public class RoundManager : MonoBehaviour
             return;
 
         float safeSeconds = Mathf.Max(0f, secondsRemaining);
+        float progress = 1f - Mathf.Clamp01(safeSeconds / betweenRoundDurationSeconds);
         betweenRoundTimerText.text = $"{safeSeconds:0.000}s";
+        betweenRoundTimerText.color = Color.Lerp(timerStartColor, timerEndColor, progress);
     }
 
     private void SetBetweenRoundTimerVisible(bool isVisible)

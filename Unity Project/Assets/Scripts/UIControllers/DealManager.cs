@@ -17,9 +17,12 @@ public abstract class DealManager : MonoBehaviour
     [SerializeField] protected int gamePoints;
     [Header("Round UI")]
     [SerializeField] private TMP_Text roundTimerText;
+    [SerializeField] private Color roundTimerStartColor = Color.white;
+    [SerializeField] private Color roundTimerEndColor = Color.red;
 
     private Coroutine roundTimerCoroutine;
     private float roundEndTime;
+    private float roundDurationSeconds = 0.001f;
     private bool isRoundTimerRunning;
 
     // The data asset currently loaded into this pitch
@@ -41,6 +44,12 @@ public abstract class DealManager : MonoBehaviour
     public void SetRoundTimerText(TMP_Text timerText)
     {
         roundTimerText = timerText;
+    }
+
+    public void SetRoundTimerColors(Color startColor, Color endColor)
+    {
+        roundTimerStartColor = startColor;
+        roundTimerEndColor = endColor;
     }
 
     private void Awake()
@@ -105,7 +114,8 @@ public abstract class DealManager : MonoBehaviour
         StopRoundTimer();
 
         isRoundTimerRunning = true;
-        roundEndTime = Time.time + Mathf.Max(0f, durationSeconds);
+        roundDurationSeconds = Mathf.Max(0.001f, durationSeconds);
+        roundEndTime = Time.time + roundDurationSeconds;
         UpdateRoundTimerText(durationSeconds);
         roundTimerCoroutine = StartCoroutine(UpdateRoundTimerRoutine());
     }
@@ -141,7 +151,9 @@ public abstract class DealManager : MonoBehaviour
             return;
 
         float safeSeconds = Mathf.Max(0f, secondsRemaining);
+        float progress = 1f - Mathf.Clamp01(safeSeconds / roundDurationSeconds);
         roundTimerText.text = $"{safeSeconds:0.000}s";
+        roundTimerText.color = Color.Lerp(roundTimerStartColor, roundTimerEndColor, progress);
     }
 
     private System.Collections.IEnumerator EndGameRoutine()
