@@ -18,14 +18,11 @@ public class PitchData : ScriptableObject
     public int gameDurationMs;
     public string gameType;
 
-<<<<<<< HEAD
     public int max;
     public int min;
     public int points;
-=======
     [Header("Audio")]
     public AudioClip introVoiceLine;
     public AudioClip recurringVoiceLine;
     
->>>>>>> f86d9c97 (Basic AudioManager implementation.)
 }
