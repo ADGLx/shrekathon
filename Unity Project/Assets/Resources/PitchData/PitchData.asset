@@ -17,5 +17,8 @@ MonoBehaviour:
   characterSprite: {fileID: -286012882, guid: 098ac6d04506408439cb8c2e623a0131, type: 3}
   contractTitle: Soulbinder
   contractSprite: {fileID: 926094402, guid: e8cdd8282b90a1f4aaf0b851abd11448, type: 3}
-  gameDurationMs: 20000
-  gameType: BRINK
+  gameDurationMs: 10000
+  gameType: MAX_TAP
+  max: 0
+  min: 0
+  points: 150

@@ -309,8 +309,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9aa37eb5e1e4eb0c1a52c290d5723a4c, type: 2}
   - {fileID: 11400000, guid: c435895ef16a3b190b25a73cfe4a231e, type: 2}
   - {fileID: 11400000, guid: 74ff29baa05412b418516ac85544bca0, type: 2}
+  - {fileID: 11400000, guid: ca0ce01ad7aa8d8449d856cba574cd64, type: 2}
+  - {fileID: 11400000, guid: a8e1933f96f51f9468dc0a04a93c1129, type: 2}
+  - {fileID: 11400000, guid: 5b81f6b6dcc48ef4095dbd43162569a5, type: 2}
   waitBeforeStartRoundSeconds: 5
-  betweenPitchScenes: []
   playerControllerPrefab: {fileID: 2125554143}
   playerIconDatas:
   - characterName: shrek-pink

@@ -76,8 +76,8 @@ public abstract class DealManager : MonoBehaviour
         gameType = data.gameType;
         gamePoints = data.points;
 
+        displayDeal();
         Debug.Log($"[DealManager] Loaded pitch: {data.characterName} — {data.contractTitle} | gameType={gameType}, gameDurationMs={gameDurationMs}");
-        //@todo: Perform this only after API request made for next round to begin
         Debug.Log($"[DealManager] Starting EndGame timer: {gameDurationMs}ms", this);
         Invoke(nameof(EndGame), gameDurationMs / 1000f);
     }
@@ -96,6 +96,7 @@ public abstract class DealManager : MonoBehaviour
         }
 
         Debug.Log($"[DealManager] Firing OnDestroyed event.", this);
+        hideDeal();
         OnDestroyed?.Invoke();
         Destroy(this);
     }

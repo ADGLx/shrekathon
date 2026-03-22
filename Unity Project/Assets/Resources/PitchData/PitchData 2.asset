@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a54d88f7e73bdd0a92c58d14496dbec, type: 3}
   m_Name: PitchData 2
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
-  characterName: shrek pink
+  characterName: Shrek Blue
   characterDescription: 
-  characterSprite: {fileID: -1360056644, guid: 411d42bafe8bec743abbff201f926c7a, type: 3}
+  characterSprite: {fileID: 1760111657, guid: e675710ba82c96d43b77d3265efd1ab2, type: 3}
   contractTitle: Magic
   contractSprite: {fileID: 926094402, guid: e8cdd8282b90a1f4aaf0b851abd11448, type: 3}
-  gameDurationMs: 15000
-  gameType: BRINK
+  gameDurationMs: 5000
+  gameType: RANGE_TAP
+  max: 2
+  min: 8
+  points: 100

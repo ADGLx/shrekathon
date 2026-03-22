@@ -24,8 +24,9 @@ public class RoundManager : MonoBehaviour
     [SerializeField] protected ContractController contractController;
     [SerializeField] private PitchData[] pitchData;
     [SerializeField] private int waitBeforeStartRoundSeconds = 2;
-
-    [SerializeField] private PitchData[] betweenPitchScenes; // assign in inspector - these are the pitches that will be shown in between rounds (e.g. for character reveal, etc.)
+    [SerializeField] private AudioClip[] betweenRoundClips;
+    [SerializeField] private AudioSource audioSource;
+    private int _lastClipIndex = -1;
 
     // GameAPI calls
     private GameAPI gameAPI;
@@ -65,9 +66,21 @@ public class RoundManager : MonoBehaviour
             Debug.LogError("[RoundManager] Start — gameData is null", this);
         
         Debug.Log($"[RoundManager] Start — gameId={currentGameId ?? "NONE"}, playerCount={gameData.connected_players.Count()}", this);
+        
         pitchData = Resources.LoadAll<PitchData>("PitchData");
+        ShufflePitchData();
+
         AssignPlayerPortraits();
         InitializeGame();
+    }
+
+    private void ShufflePitchData()
+    {
+        for (int i = pitchData.Length - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            (pitchData[i], pitchData[j]) = (pitchData[j], pitchData[i]);
+        }
     }
 
     public void InitializeGame()
@@ -80,8 +93,29 @@ public class RoundManager : MonoBehaviour
 
     public void NextRound()
     {
+        PlayRandomBetweenRoundClip();
         CurrentRound++;
         StartRound();
+    }
+
+    private void PlayRandomBetweenRoundClip()
+    {
+        if (betweenRoundClips == null || betweenRoundClips.Length == 0) return;
+        if (audioSource == null)
+        {
+            Debug.LogWarning("[RoundManager] PlayRandomBetweenRoundClip — no AudioSource assigned.", this);
+            return;
+        }
+
+        int index = _lastClipIndex;
+        if (betweenRoundClips.Length > 1)
+            while (index == _lastClipIndex)
+                index = UnityEngine.Random.Range(0, betweenRoundClips.Length);
+        else
+            index = 0;
+
+        _lastClipIndex = index;
+        audioSource.PlayOneShot(betweenRoundClips[index]);
     }
 
     public void StartRound()

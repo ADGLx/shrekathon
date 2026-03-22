@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a54d88f7e73bdd0a92c58d14496dbec, type: 3}
-  m_Name: PitchData 1
+  m_Name: PitchData 3
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
   characterName: Stiltskin
   characterDescription: 
-  characterSprite: {fileID: 1345059731, guid: 15527c433bbb59945a329affda0859e3, type: 3}
+  characterSprite: {fileID: -1735353723, guid: 233e1abd26b6a9a4589d3c0f014459c6, type: 3}
   contractTitle: Magic
   contractSprite: {fileID: 1370422131, guid: a0baa8016d8ec944c83a3821ac206f09, type: 3}
   gameDurationMs: 15000
   gameType: RANGE_TAP
-  max: 30
-  min: 20
-  points: 50
+  max: 50
+  min: 55
+  points: 250
