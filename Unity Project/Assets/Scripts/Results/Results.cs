@@ -1,0 +1,35 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System.Linq;
+
+public class Results : MonoBehaviour
+{
+    [SerializeField] private Image winnerImage;
+    [SerializeField] private TMP_Text winnerNameText;
+    [SerializeField] private TMP_Text winnerPointsText;
+    [SerializeField] private TMP_Text leaderBoardText;
+
+    void Start()
+    {
+
+        AudioManager.Instance.StopAudio();  // stop any lingering music/voices from the game
+        if (GameAPI.Instance == null)
+        {
+            Debug.LogError("[Results] GameAPI.Instance is null — cannot populate results screen.", this);
+            return;
+        }
+        EndGameData data = GameAPI.Instance.CurrentEndGameData;
+        if (data == null)
+        {
+            Debug.LogError("[Results] CurrentEndGameData is null — cannot populate results screen.", this);
+            return;
+        }
+
+        winnerImage.sprite = data.winnerSprite;
+        winnerNameText.text = data.winnerName;
+        winnerPointsText.text = data.winnerPoints.ToString();
+        var sortedPlayers = data.playerPoints.OrderByDescending(kvp => kvp.Value);
+        leaderBoardText.text = string.Join("\n", sortedPlayers.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
+    }
+}

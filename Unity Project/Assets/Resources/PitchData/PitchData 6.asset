@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a54d88f7e73bdd0a92c58d14496dbec, type: 3}
+  m_Name: PitchData 6
+  m_EditorClassIdentifier: Assembly-CSharp::PitchData
+  characterName: Green
+  characterDescription: The player with the least amount of taps!
+  characterSprite: {fileID: -668314338, guid: a2144a5a7f660dd47ac9a4b826d8e56b, type: 3}
+  contractTitle: Magic
+  contractSprite: {fileID: -1845901728, guid: 9165fb4edb7096b41a89c35a0309142b, type: 3}
+  gameDurationMs: 15000
+  gameType: MIN_TAP
+  max: 0
+  min: 0
+  points: 25

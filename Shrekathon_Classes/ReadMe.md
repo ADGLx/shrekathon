@@ -1,0 +1,1 @@
+This folder is for pure C# classes as a means to develop them in an isolated environment before importing them into the main project. This is to avoid breaking the main project while developing new features. Once the classes are ready, they can be imported into the main project and tested there.

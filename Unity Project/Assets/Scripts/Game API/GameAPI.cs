@@ -1,0 +1,104 @@
+using System;
+using Newtonsoft.Json;
+using UnityEngine;
+
+public class GameAPI : MonoBehaviour
+{
+    public static GameAPI Instance;
+
+    public GameData CurrentGameData { get; private set; }
+    public EndGameData CurrentEndGameData { get; private set; }
+
+    public void StoreGameData(GameData data)
+    {
+        Debug.Log($"[GameAPI] - StoreGameData: {data.game_id}, {data.amount_of_players}, {string.Join(", ", data.connected_players ?? System.Array.Empty<string>())}", this);
+        CurrentGameData = data;
+    }
+
+    public void StoreEndGameData(EndGameData data)
+    {
+        Debug.Log($"[GameAPI] - StoreEndGameData: winner={data?.winnerName}, points={data?.winnerPoints}", this);
+        CurrentEndGameData = data;
+    }
+
+    private void Awake()
+    {
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    [SerializeField] private HTTP_Client HTTP_Client;
+
+    public void GetGame(GetGameRequest request, Action<GetGameResponse> onSuccess = null, Action<string> onError = null)
+    {
+        PostWithDefaults<GetGameRequest, GetGameResponse>("get-game", request, "GetGame", onSuccess, onError);
+    }
+
+    public void CreateGame(CreateGameRequest request, Action<CreateGameResponse> onSuccess = null, Action<string> onError = null)
+    {
+        PostWithDefaults<CreateGameRequest, CreateGameResponse>("create-game", request, "CreateGame", onSuccess, onError);
+    }
+
+    public void StartRound(StartRoundRequest request, Action<StartRoundResponse> onSuccess = null, Action<string> onError = null)
+    {
+        PostWithDefaults<StartRoundRequest, StartRoundResponse>("start-round", request, "StartRound", onSuccess, onError);
+    }
+
+    public void GetRound(GetRoundRequest request, Action<GetRoundResponse> onSuccess = null, Action<string> onError = null)
+    {
+        PostWithDefaults<GetRoundRequest, GetRoundResponse>("get-round", request, "GetRound", onSuccess, onError);
+    }
+
+    public void EndGame(EndGameRequest request, Action<EndGameResponse> onSuccess = null, Action<string> onError = null)
+    {
+        PostWithDefaults<EndGameRequest, EndGameResponse>("end-game", request, "EndGame", onSuccess, onError);
+    }
+
+    private void PostWithDefaults<TRequest, TResponse>(
+        string endpoint,
+        TRequest request,
+        string operation,
+        Action<TResponse> onSuccess = null,
+        Action<string> onError = null)
+    {
+        if (HTTP_Client == null)
+        {
+            string missingClientMessage = $"{operation} failed: HTTP_Client reference is missing on GameAPI.";
+            Debug.LogError(missingClientMessage, this);
+            onError?.Invoke(missingClientMessage);
+            return;
+        }
+
+        HTTP_Client.Post<TRequest, TResponse>(
+            endpoint,
+            request,
+            response =>
+            {
+                string payload = SerializeForLog(response);
+                Debug.Log($"[GameAPI] PostWithDefaults - {operation} succeeded. Response: {payload}", this);
+                onSuccess?.Invoke(response);
+            },
+            error =>
+            {
+                Debug.LogError($"[GameAPI] PostWithDefaults - {operation} failed: {error}", this);
+                onError?.Invoke(error);
+            });
+    }
+
+    private string SerializeForLog<T>(T value)
+    {
+        if (value == null)
+        {
+            return "null";
+        }
+
+        try
+        {
+            return JsonConvert.SerializeObject(value, Formatting.Indented);
+        }
+        catch (Exception ex)
+        {
+            return $"<unable to serialize: {ex.Message}>";
+        }
+    }
+}
