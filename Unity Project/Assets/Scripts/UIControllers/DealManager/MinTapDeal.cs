@@ -14,6 +14,7 @@ public class MinTapDeal : DealManager
         foreach (var kvp in playerPress)
             if (kvp.Value.Count < minCount) minCount = kvp.Value.Count;
 
+        Debug.Log($"[MinTapDeal] Score calc for player={playerKey}: myCount={myCount}, minCount={minCount}, award={(myCount == minCount ? gamePoints : 0)}", this);
         return myCount == minCount ? gamePoints : 0;
     }
 }

@@ -571,6 +571,7 @@ GameObject:
   - component: {fileID: 486080763}
   - component: {fileID: 486080765}
   - component: {fileID: 486080764}
+  - component: {fileID: 486080766}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -635,6 +636,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 486080762}
   m_CullTransparentMesh: 1
+--- !u!114 &486080766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486080762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca6f6d6250d09ad4c86f88b94f3350e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIDanceAnimator
+  speed: 5.1
+  rotationAmplitude: 10
+  bobAmplitude: 4
+  bobFrequencyMultiplier: 1.3
+  useUnscaledTime: 1
+  randomizePhaseOnEnable: 0
+  phaseOffset: 1
 --- !u!1 &517634731
 GameObject:
   m_ObjectHideFlags: 0
@@ -646,6 +666,7 @@ GameObject:
   - component: {fileID: 517634732}
   - component: {fileID: 517634734}
   - component: {fileID: 517634733}
+  - component: {fileID: 517634735}
   m_Layer: 5
   m_Name: Icon2
   m_TagString: Untagged
@@ -710,6 +731,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 517634731}
   m_CullTransparentMesh: 1
+--- !u!114 &517634735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517634731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca6f6d6250d09ad4c86f88b94f3350e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIDanceAnimator
+  speed: 5.1
+  rotationAmplitude: 10
+  bobAmplitude: 4
+  bobFrequencyMultiplier: 1.3
+  useUnscaledTime: 1
+  randomizePhaseOnEnable: 0
+  phaseOffset: 1
 --- !u!1 &564928331
 GameObject:
   m_ObjectHideFlags: 0
@@ -971,6 +1011,7 @@ GameObject:
   - component: {fileID: 580261261}
   - component: {fileID: 580261260}
   - component: {fileID: 580261259}
+  - component: {fileID: 580261262}
   m_Layer: 5
   m_Name: Exit
   m_TagString: Untagged
@@ -1151,6 +1192,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 580261257}
   m_CullTransparentMesh: 1
+--- !u!114 &580261262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580261257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99492dc4c8ef0114999519e8c7a7a956, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UICircularRotationAnimator
+  degreesPerSecond: 60
+  clockwise: 1
+  useUnscaledTime: 1
 --- !u!1 &640763690
 GameObject:
   m_ObjectHideFlags: 0
@@ -1269,6 +1325,7 @@ GameObject:
   - component: {fileID: 719020850}
   - component: {fileID: 719020852}
   - component: {fileID: 719020851}
+  - component: {fileID: 719020853}
   m_Layer: 5
   m_Name: Icon (1)
   m_TagString: Untagged
@@ -1333,6 +1390,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 719020849}
   m_CullTransparentMesh: 1
+--- !u!114 &719020853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719020849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99492dc4c8ef0114999519e8c7a7a956, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UICircularRotationAnimator
+  degreesPerSecond: 60
+  clockwise: 1
+  useUnscaledTime: 1
 --- !u!1 &745266181
 GameObject:
   m_ObjectHideFlags: 0
@@ -1823,6 +1895,7 @@ GameObject:
   - component: {fileID: 1256239973}
   - component: {fileID: 1256239975}
   - component: {fileID: 1256239974}
+  - component: {fileID: 1256239976}
   m_Layer: 5
   m_Name: Icon (2)
   m_TagString: Untagged
@@ -1887,6 +1960,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1256239972}
   m_CullTransparentMesh: 1
+--- !u!114 &1256239976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256239972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca6f6d6250d09ad4c86f88b94f3350e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIDanceAnimator
+  speed: 5.1
+  rotationAmplitude: 2
+  bobAmplitude: 4
+  bobFrequencyMultiplier: 1.3
+  useUnscaledTime: 1
+  randomizePhaseOnEnable: 0
+  phaseOffset: 1
 --- !u!1 &1319001058
 GameObject:
   m_ObjectHideFlags: 0

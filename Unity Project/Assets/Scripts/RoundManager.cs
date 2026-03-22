@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,6 +24,10 @@ public class RoundManager : MonoBehaviour
     [Header("Round")]
     [SerializeField] protected CharacterController characterController;
     [SerializeField] protected ContractController contractController;
+    [SerializeField] private TMP_Text roundTimerText;
+    [SerializeField] private TMP_Text betweenRoundTimerText;
+    [SerializeField] private Color timerStartColor = Color.white;
+    [SerializeField] private Color timerEndColor = Color.red;
     [SerializeField] private PitchData[] pitchData;
     [SerializeField] private int waitBeforeStartRoundSeconds = 2;
     [SerializeField] private bool playAudioClips = true;
@@ -43,6 +48,7 @@ public class RoundManager : MonoBehaviour
     [SerializeField] GameObject[] playerControllerContainer; // assign in inspector - parent object to hold instantiated PlayerControllers
     protected Dictionary<string, PlayerController> playerControllers = new Dictionary<string, PlayerController>();
     protected Dictionary<string, int> playerPoints = new Dictionary<string, int>();
+    private float betweenRoundDurationSeconds = 0.001f;
 
     private void Awake()
     {
@@ -116,6 +122,8 @@ public class RoundManager : MonoBehaviour
 
     public void StartRound()
     {
+        SetBetweenRoundTimerVisible(false);
+        UpdateBetweenRoundTimerText(0f);
         PlayRandomBetweenRoundClip();
         PitchData currentPitch = pitchData[CurrentRound];
         Debug.Log($"[RoundManager] StartRound — round {CurrentRound + 1}/{totalRounds} | pitch='{currentPitch.characterName}', gameType={currentPitch.gameType}, gameDurationMs={currentPitch.gameDurationMs}", this);
@@ -131,6 +139,8 @@ public class RoundManager : MonoBehaviour
             throw new Exception($"Unsupported game type: {currentPitch.gameType}");
 
         dealManager.Init(characterController, contractController);
+        dealManager.SetRoundTimerText(roundTimerText);
+        dealManager.SetRoundTimerColors(timerStartColor, timerEndColor);
         dealManager.Load(currentPitch);
         dealManager.OnDestroyed += EndRound();
         StartCoroutine(WaitForLoadThenDisplay(dealManager));
@@ -150,7 +160,6 @@ public class RoundManager : MonoBehaviour
         return () =>
         {
             Debug.Log($"[RoundManager] EndRound fired — round {CurrentRound + 1}/{totalRounds}", this);
-            PlayerInputHandler.Instance.EndPlayerInputCollection();
             if (CurrentRound + 1 >= totalRounds)
             {
                 Debug.Log("[RoundManager] All rounds complete — triggering EndGame.", this);
@@ -169,9 +178,42 @@ public class RoundManager : MonoBehaviour
     private IEnumerator WaitThenNextRound()
     {
         //characterController.Populate(betweenPitchScenes[CurrentRound]); // show next character silhouette in between rounds
-        yield return new WaitForSeconds(waitBeforeStartRoundSeconds);
+        SetBetweenRoundTimerVisible(true);
+        float waitDuration = Mathf.Max(0f, waitBeforeStartRoundSeconds);
+        betweenRoundDurationSeconds = Mathf.Max(0.001f, waitDuration);
+        float waitEndTime = Time.time + waitDuration;
+
+        while (true)
+        {
+            float remaining = Mathf.Max(0f, waitEndTime - Time.time);
+            UpdateBetweenRoundTimerText(remaining);
+            if (remaining <= 0f)
+                break;
+
+            yield return null;
+        }
+
         Debug.Log("[RoundManager] WaitThenNextRound — proceeding to NextRound.", this);
         NextRound();
+    }
+
+    private void UpdateBetweenRoundTimerText(float secondsRemaining)
+    {
+        if (betweenRoundTimerText == null)
+            return;
+
+        float safeSeconds = Mathf.Max(0f, secondsRemaining);
+        float progress = 1f - Mathf.Clamp01(safeSeconds / betweenRoundDurationSeconds);
+        betweenRoundTimerText.text = $"{safeSeconds:0.000}s";
+        betweenRoundTimerText.color = Color.Lerp(timerStartColor, timerEndColor, progress);
+    }
+
+    private void SetBetweenRoundTimerVisible(bool isVisible)
+    {
+        if (betweenRoundTimerText == null)
+            return;
+
+        betweenRoundTimerText.gameObject.SetActive(isVisible);
     }
 
     // ---------------------------------------------------- //
@@ -210,7 +252,6 @@ public class RoundManager : MonoBehaviour
                 Debug.Log($"StartRound completed. round_id={response.round_id}, status={response.status}", this);
                 isRequestInFlight = false;
                 isDone = true;
-                PlayerInputHandler.Instance.StartCoroutine(PlayerInputHandler.Instance.StartPlayerInputCollection(currentGameId));
             },
             error =>
             {
@@ -251,18 +292,23 @@ public class RoundManager : MonoBehaviour
             {
                 isRequestInFlight = false;
                 GameIsOver = true;
+                Debug.Log($"[RoundManager] EndGame API completed. status={response.status}, game_id={response.game_id}", this);
 
                 // Find the player with the highest points
                 string winnerId = null;
                 int highestPoints = int.MinValue;
+                Debug.Log($"[RoundManager] Calculating final winner from {playerPoints.Count} player point entries.", this);
                 foreach (var kvp in playerPoints)
                 {
+                    Debug.Log($"[RoundManager] Final score candidate: player={kvp.Key}, points={kvp.Value}", this);
                     if (kvp.Value > highestPoints)
                     {
                         highestPoints = kvp.Value;
                         winnerId = kvp.Key;
                     }
                 }
+
+                Debug.Log($"[RoundManager] Final winner resolved: winnerId={winnerId ?? "<none>"}, winnerPoints={highestPoints}", this);
 
                 EndGameData endGameData = new EndGameData();
                 if (winnerId != null)

@@ -13,6 +13,7 @@ public class MaxTapDeal : DealManager
         foreach (var kvp in playerPress)
             if (kvp.Value.Count > maxCount) maxCount = kvp.Value.Count;
 
+        Debug.Log($"[MaxTapDeal] Score calc for player={playerKey}: myCount={myCount}, maxCount={maxCount}, award={(myCount == maxCount ? gamePoints : 0)}", this);
         return myCount == maxCount ? gamePoints : 0;
     }
 }
