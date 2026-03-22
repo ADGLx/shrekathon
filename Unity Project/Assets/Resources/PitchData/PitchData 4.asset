@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PitchData 4
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
   characterName: Shrek Red
-  characterDescription: 
+  characterDescription: The player with most taps!
   characterSprite: {fileID: -1766616870, guid: a08698154aa8a48469e0126281fae278, type: 3}
   contractTitle: Magic
   contractSprite: {fileID: -1516106378, guid: 4fa9d632947898c4e99e8017b40e296b, type: 3}

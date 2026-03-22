@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Long-Tap-Count
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
   characterName: Stiltskin
-  characterDescription: 
+  characterDescription: 3 Long Taps
   characterSprite: {fileID: 1345059731, guid: 15527c433bbb59945a329affda0859e3, type: 3}
   contractTitle: Magic
-  contractSprite: {fileID: 3843231544584785974, guid: c02003636bbd1ea0b820524840d97f03, type: 3}
+  contractSprite: {fileID: 2073210614, guid: 567abcba3efe4fb4fbe0315446586739, type: 3}
   gameDurationMs: 20000
   gameType: 'LONG_TAP_COUNT '
   max: 3

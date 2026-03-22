@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PitchData 1
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
   characterName: Stiltskin
-  characterDescription: 
+  characterDescription: Anyone who tapped between 20 and 30 times!
   characterSprite: {fileID: 1345059731, guid: 15527c433bbb59945a329affda0859e3, type: 3}
   contractTitle: Magic
   contractSprite: {fileID: 1566608935, guid: 5d529d8778129d348b09d3454319459b, type: 3}

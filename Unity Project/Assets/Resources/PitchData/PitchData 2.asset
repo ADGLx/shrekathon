@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PitchData 2
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
   characterName: Shrek Blue
-  characterDescription: 
+  characterDescription: Tapping between 2 and 8 times!
   characterSprite: {fileID: 1760111657, guid: e675710ba82c96d43b77d3265efd1ab2, type: 3}
   contractTitle: Magic
   contractSprite: {fileID: -516807869, guid: 48d3ce4c194f42d4482bd4efaefa21b3, type: 3}
