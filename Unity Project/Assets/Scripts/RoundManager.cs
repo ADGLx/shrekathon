@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class RoundManager : MonoBehaviour
@@ -10,10 +11,8 @@ public class RoundManager : MonoBehaviour
 
     [Header("Game Configuration")]
     [SerializeField] private int totalRounds = 6;
-    [SerializeField] private int playerCount = 4;
 
     public int TotalRounds => totalRounds;
-    public int PlayerCount => playerCount;
 
     public int CurrentRound { get; private set; }   // 0-indexed
     public bool GameIsOver { get; private set; }
@@ -34,7 +33,7 @@ public class RoundManager : MonoBehaviour
 
     [Header("Round")]
     // Tracking of player portraits and points in game
-    [SerializeField] PlayerController playerControllerPrefab;  // assign in inspector
+    [SerializeField] GameObject playerControllerPrefab;  // assign in inspector
     [SerializeField] List<PlayerIconData> playerIconDatas;  // assign in inspector player portraits in hierarchy order (e.g. Player1, Player2, etc.)
     [SerializeField] GameObject[] playerControllerContainer; // assign in inspector - parent object to hold instantiated PlayerControllers
     protected Dictionary<string, PlayerController> playerControllers = new Dictionary<string, PlayerController>();
@@ -56,15 +55,15 @@ public class RoundManager : MonoBehaviour
     {
         gameAPI = GameAPI.Instance;
         gameData = GameAPI.Instance?.CurrentGameData;
-        playerCount = gameData != null ? gameData.amount_of_players : playerCount;
 
         if (gameData != null)
             currentGameId = gameData.game_id;
-
-        PlayerInputHandler.Instance.StartCoroutine(PlayerInputHandler.Instance.StartPlayerInputCollection(currentGameId));
+        else
+            Debug.LogError("[RoundManager] Start — gameData is null", this);
+        
+        Debug.Log($"[RoundManager] Start — gameId={currentGameId ?? "NONE"}, playerCount={gameData.connected_players.Count()}", this);
         pitchData = Resources.LoadAll<PitchData>("PitchData");
         AssignPlayerPortraits();
-        Debug.Log($"[RoundManager] Start — gameId={currentGameId ?? "NONE"}, playerCount={playerCount}, pitchData loaded={pitchData.Length}, totalRounds={totalRounds}", this);
         InitializeGame();
     }
 
@@ -140,6 +139,7 @@ public class RoundManager : MonoBehaviour
 
     private IEnumerator CallStartRoundAPI(int gameDurationMs)
     {
+        Debug.Log("[RoundManager] CallStartRoundAPI — attempting to call StartRound API.", this);
         if (isRequestInFlight) yield break;
 
         if (gameAPI == null)
@@ -170,6 +170,7 @@ public class RoundManager : MonoBehaviour
                 Debug.Log($"StartRound completed. round_id={response.round_id}, status={response.status}", this);
                 isRequestInFlight = false;
                 isDone = true;
+                PlayerInputHandler.Instance.StartCoroutine(PlayerInputHandler.Instance.StartPlayerInputCollection(currentGameId));
             },
             error =>
             {
@@ -243,7 +244,8 @@ public class RoundManager : MonoBehaviour
         {
             string playerId = gameData.connected_players[i];
 
-            PlayerController controller = Instantiate(playerControllerPrefab, playerControllerContainer[i].transform);
+            GameObject controllerObj = Instantiate(playerControllerPrefab, playerControllerContainer[i].transform);
+            PlayerController controller = controllerObj.GetComponent<PlayerController>();
 
             if (i < playerIconDatas.Count)
                 controller.Populate(playerIconDatas[i]);
@@ -289,7 +291,8 @@ public class RoundManager : MonoBehaviour
 
     public string[] GetConnectedPlayers()
     {
-        return gameData?.connected_players ?? new string[0];
+        if (gameAPI == null || gameAPI.CurrentGameData == null) return new string[0];
+        return gameAPI.CurrentGameData.connected_players ?? new string[0];
     }
 
     void Update()

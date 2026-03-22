@@ -175,22 +175,21 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
             playerCountText.text = $" {count}";
         }
 
+        string[] names = GetNamesFromResponse(response);
+
         if (playerNamesText != null)
         {
-            string[] names = GetNamesFromResponse(response);
             playerNamesText.text = names.Length > 0
                 ? $" {string.Join(", ", names)}"
                 : "none yet";
         }
 
-        Debug.Log("Save gameData applied.", this);
-        GameData gameData = new GameData
+        gameAPI.StoreGameData(new GameData
         {
-            game_id = response.game_id,
+            game_id           = response.game_id,
             amount_of_players = response.amount_of_players,
-            connected_players = GetNamesFromResponse(response)
-        };
-        GameAPI.Instance.StoreGameData(gameData);
+            connected_players = names
+        });
     }
 
     private void StartGetGamePolling()
@@ -282,26 +281,23 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
             playerCountText.text = $" {count}";
         }
 
+        string[] names = response.connected_players ?? Array.Empty<string>();
+
         if (playerNamesText != null)
         {
-            string[] names = response.connected_players ?? System.Array.Empty<string>();
             playerNamesText.text = names.Length > 0
                 ? $" {string.Join(", ", names)}"
                 : "none yet";
-        }
+        
+            GameData existing = gameAPI.CurrentGameData;
 
-        /*
-        GameData existing = GameAPI.Instance.CurrentGameData;
-        if (existing != null)
-        {
-            GameAPI.Instance.StoreGameData(new GameData
+            gameAPI.StoreGameData(new GameData
             {
-                game_id           = existing.game_id,
-                amount_of_players = existing.amount_of_players,
-                connected_players = response.connected_players
+                game_id           = currentGameId,
+                amount_of_players = existing?.amount_of_players ?? playerCount,
+                connected_players = names
             });
         }
-        */
     }
 
     private string[] GetNamesFromResponse(CreateGameResponse response)
@@ -316,7 +312,7 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
             return response.player_names;
         }
 
-        return System.Array.Empty<string>();
+        return Array.Empty<string>();
     }
 
     private void SetError(string message)

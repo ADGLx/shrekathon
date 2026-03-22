@@ -4,22 +4,15 @@ using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private PlayerIconData playerIconData;
-    private Image   playerPortrait;
-    private TMP_Text playerPointsText;
+    [SerializeField] private Image   playerPortrait;
+    [SerializeField] private TMP_Text playerPointsText;
 
     void Start()
     {
-        playerPortrait   = GetComponentInChildren<Image>();
-        playerPointsText = GetComponentInChildren<TMP_Text>();
-
         if (playerPortrait == null)
             Debug.LogError("[PlayerController] Could not find Image component in children.");
         if (playerPointsText == null)
             Debug.LogError("[PlayerController] Could not find TMP_Text component in children.");
-
-        if (playerIconData != null)
-            Populate(playerIconData);
     }
 
     public void Populate(PlayerIconData data)
@@ -33,7 +26,8 @@ public class PlayerController : MonoBehaviour
         playerPortrait.sprite = data.characterSprite;
         playerPointsText.text = "";
 
-        Debug.Log($"[PlayerController] Populated character: {data.characterName}");
+        Debug.Log($"[PlayerController] Populated character: {data.characterName} with sprite: {data.characterSprite.name}");
+        gameObject.SetActive(true);
     }
 
     public void UpdatePlayerPoints(int points)

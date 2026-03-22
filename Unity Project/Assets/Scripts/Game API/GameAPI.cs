@@ -10,6 +10,7 @@ public class GameAPI : MonoBehaviour
 
     public void StoreGameData(GameData data)
     {
+        Debug.Log($"[GameAPI] - StoreGameData: {data.game_id}, {data.amount_of_players}, {string.Join(", ", data.connected_players ?? System.Array.Empty<string>())}", this);
         CurrentGameData = data;
     }
 
