@@ -499,6 +499,37 @@ body::before {
   text-align: center;
 }
 
+.round-tap-counter {
+  margin: 0;
+  color: #f0ffd5;
+  font-family: "KingsTitle", "Trebuchet MS", "Verdana", sans-serif;
+  font-size: clamp(1.1rem, 4.8vw, 1.5rem);
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-shadow: 0 4px 12px rgba(6, 18, 5, 0.45);
+}
+
+.round-hold-counter {
+  margin: 0 0 1rem;
+  color: #dbefb9;
+  font-family: "KingsTitle", "Trebuchet MS", "Verdana", sans-serif;
+  font-size: clamp(1rem, 4.4vw, 1.3rem);
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-shadow: 0 4px 12px rgba(6, 18, 5, 0.42);
+}
+
+.round-hold-indicator {
+  margin: 0 0 0.7rem;
+  min-height: 1.3rem;
+  color: #f8ffdf;
+  font-family: "JimNightshade", "Trebuchet MS", "Verdana", sans-serif;
+  font-size: clamp(0.95rem, 4vw, 1.15rem);
+  letter-spacing: 0.03em;
+  text-align: center;
+  text-shadow: 0 3px 10px rgba(6, 18, 5, 0.45);
+}
+
 .round-action-onion {
   width: min(76vw, 300px);
   aspect-ratio: 1 / 1;
@@ -509,6 +540,7 @@ body::before {
   background-repeat: no-repeat;
   background-color: transparent;
   background-position: 0% center;
+  -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   filter: drop-shadow(0 18px 20px rgba(6, 18, 5, 0.48));
   transition: transform 120ms ease, filter 120ms ease;

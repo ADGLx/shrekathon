@@ -9,6 +9,7 @@ const LOBBY_POLL_INTERVAL_MS = 1500;
 const USERNAME_MAX_LENGTH = 8;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz";
 const ROUND_BUTTON_FEEDBACK_MS = 180;
+const HOLD_THRESHOLD_MS = 2000;
 const ONION_SPRITE_FRAME_COUNT = 8;
 
 const createRandomPlayerName = () => {
@@ -449,9 +450,17 @@ export default function App() {
     return Math.max(0, Math.min(roundInfo.timeLimitMs, roundInfo.timeLimitMs - roundRemainingMs));
   };
 
-  const handleRoundButtonDown = () => {
+  const handleRoundButtonDown = (event) => {
     if (activePressStartOffsetMs !== null) {
       return;
+    }
+
+    if (typeof event.currentTarget.setPointerCapture === "function") {
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // Ignore unsupported pointer capture edge cases.
+      }
     }
 
     const startOffsetMs = getCurrentRoundOffsetMs();
@@ -460,9 +469,19 @@ export default function App() {
     setRoundButtonPressed(true);
   };
 
-  const handleRoundButtonUp = () => {
+  const handleRoundButtonUp = (event) => {
     if (activePressStartOffsetMs === null) {
       return;
+    }
+
+    if (event && typeof event.currentTarget.releasePointerCapture === "function") {
+      try {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        }
+      } catch {
+        // Ignore unsupported pointer capture edge cases.
+      }
     }
 
     const endOffsetMs = getCurrentRoundOffsetMs();
@@ -488,6 +507,13 @@ export default function App() {
 
   const connectedPlayers = lobbyData?.connected_players ?? [];
   const roundRemainingSeconds = Math.ceil(Math.max(0, roundRemainingMs) / 1000);
+  const registeredTapCount = roundPresses.length;
+  const registeredHoldCount = roundPresses.filter(
+    (press) => press.end_offset_ms - press.start_offset_ms >= HOLD_THRESHOLD_MS,
+  ).length;
+  const activePressDurationMs =
+    activePressStartOffsetMs === null ? 0 : Math.max(0, getCurrentRoundOffsetMs() - activePressStartOffsetMs);
+  const isCurrentPressHolding = activePressStartOffsetMs !== null && activePressDurationMs >= HOLD_THRESHOLD_MS;
 
   if (screen === "round") {
     return (
@@ -497,6 +523,18 @@ export default function App() {
 
           <p className="round-timer" aria-live="polite">
             {roundRemainingSeconds}s
+          </p>
+
+          <p className="round-tap-counter" aria-live="polite">
+            Taps: {registeredTapCount}
+          </p>
+
+          <p className="round-hold-counter" aria-live="polite">
+            Holds: {registeredHoldCount}
+          </p>
+
+          <p className="round-hold-indicator" aria-live="polite">
+            {isCurrentPressHolding ? "Holding..." : ""}
           </p>
 
           <button
@@ -511,7 +549,6 @@ export default function App() {
             onPointerDown={handleRoundButtonDown}
             onPointerUp={handleRoundButtonUp}
             onPointerCancel={handleRoundButtonUp}
-            onPointerLeave={handleRoundButtonUp}
           />
         </section>
       </main>
