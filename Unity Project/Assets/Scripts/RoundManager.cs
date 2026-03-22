@@ -94,7 +94,6 @@ public class RoundManager : MonoBehaviour
 
     public void NextRound()
     {
-        PlayRandomBetweenRoundClip();
         CurrentRound++;
         StartRound();
     }
@@ -117,6 +116,7 @@ public class RoundManager : MonoBehaviour
 
     public void StartRound()
     {
+        PlayRandomBetweenRoundClip();
         PitchData currentPitch = pitchData[CurrentRound];
         Debug.Log($"[RoundManager] StartRound — round {CurrentRound + 1}/{totalRounds} | pitch='{currentPitch.characterName}', gameType={currentPitch.gameType}, gameDurationMs={currentPitch.gameDurationMs}", this);
 
