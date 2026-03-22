@@ -16,6 +16,8 @@ public abstract class DealManager : MonoBehaviour
     [SerializeField] protected int gameDurationMs;
     [SerializeField] protected string gameType;
 
+    [SerializeField] protected int gamePoints;
+
     // The data asset currently loaded into this pitch
     public PitchData CurrentData { get; private set; }
 
@@ -72,6 +74,7 @@ public abstract class DealManager : MonoBehaviour
         contractController.Populate(data);
         gameDurationMs = data.gameDurationMs;
         gameType = data.gameType;
+        gamePoints = data.points;
 
         Debug.Log($"[DealManager] Loaded pitch: {data.characterName} — {data.contractTitle} | gameType={gameType}, gameDurationMs={gameDurationMs}");
         //@todo: Perform this only after API request made for next round to begin

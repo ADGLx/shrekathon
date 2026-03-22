@@ -17,4 +17,8 @@ public class PitchData : ScriptableObject
     [Header("GamePlay")]
     public int gameDurationMs;
     public string gameType;
+
+    public int max;
+    public int min;
+    public int points;
 }

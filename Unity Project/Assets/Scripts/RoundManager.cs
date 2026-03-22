@@ -90,8 +90,12 @@ public class RoundManager : MonoBehaviour
         Debug.Log($"[RoundManager] StartRound — round {CurrentRound + 1}/{totalRounds} | pitch='{currentPitch.characterName}', gameType={currentPitch.gameType}, gameDurationMs={currentPitch.gameDurationMs}", this);
 
         DealManager dealManager;
-        if (currentPitch.gameType == "BRINK")
-            dealManager = gameObject.AddComponent<BrinkDealManager>();
+        if (currentPitch.gameType == "MAX_TAP")
+            dealManager = gameObject.AddComponent<MaxTapDeal>();
+        else if (currentPitch.gameType == "MIN_TAP")
+            dealManager = gameObject.AddComponent<MinTapDeal>();
+        else if (currentPitch.gameType == "RANGE_TAP")
+            dealManager = gameObject.AddComponent<RangeTapDeal>();
         else
             throw new Exception($"Unsupported game type: {currentPitch.gameType}");
 
