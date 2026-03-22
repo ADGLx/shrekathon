@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RoundManager : MonoBehaviour
 {
@@ -23,6 +24,8 @@ public class RoundManager : MonoBehaviour
     [SerializeField] protected ContractController contractController;
     [SerializeField] private PitchData[] pitchData;
     [SerializeField] private int waitBeforeStartRoundSeconds = 2;
+
+    [SerializeField] private PitchData[] betweenPitchScenes; // assign in inspector - these are the pitches that will be shown in between rounds (e.g. for character reveal, etc.)
 
     // GameAPI calls
     private GameAPI gameAPI;
@@ -112,12 +115,12 @@ public class RoundManager : MonoBehaviour
         return () =>
         {
             Debug.Log($"[RoundManager] EndRound fired — round {CurrentRound + 1}/{totalRounds}", this);
+            PlayerInputHandler.Instance.EndPlayerInputCollection();
             if (CurrentRound + 1 >= totalRounds)
             {
                 Debug.Log("[RoundManager] All rounds complete — triggering EndGame.", this);
                 GameIsOver = true;
                 EndGame();
-                //FindObjectOfType<ScoreViewer>()?.DisplayScores();
             }
             else
             {
@@ -127,8 +130,10 @@ public class RoundManager : MonoBehaviour
         };
     }
 
+    // THIS IS THE PAUSE STATE!
     private IEnumerator WaitThenNextRound()
     {
+        //characterController.Populate(betweenPitchScenes[CurrentRound]); // show next character silhouette in between rounds
         yield return new WaitForSeconds(waitBeforeStartRoundSeconds);
         Debug.Log("[RoundManager] WaitThenNextRound — proceeding to NextRound.", this);
         NextRound();
@@ -211,6 +216,37 @@ public class RoundManager : MonoBehaviour
             {
                 isRequestInFlight = false;
                 GameIsOver = true;
+
+                // Find the player with the highest points
+                string winnerId = null;
+                int highestPoints = int.MinValue;
+                foreach (var kvp in playerPoints)
+                {
+                    if (kvp.Value > highestPoints)
+                    {
+                        highestPoints = kvp.Value;
+                        winnerId = kvp.Key;
+                    }
+                }
+
+                EndGameData endGameData = new EndGameData();
+                if (winnerId != null)
+                {
+                    int winnerIndex = Array.IndexOf(gameData.connected_players, winnerId);
+                    if (winnerIndex >= 0 && winnerIndex < playerIconDatas.Count)
+                    {
+                        endGameData.winnerName   = playerIconDatas[winnerIndex].characterName;
+                        endGameData.winnerSprite = playerIconDatas[winnerIndex].characterSprite;
+                    }
+                    else
+                    {
+                        endGameData.winnerName = winnerId;
+                    }
+                    endGameData.winnerPoints = highestPoints;
+                }
+
+                gameAPI.StoreEndGameData(endGameData);
+                SceneManager.LoadScene("Results");
             },
             error =>
             {
