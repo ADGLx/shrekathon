@@ -186,8 +186,9 @@ def get_round(
     round_id = str(round_data["round_id"])
     presses_by_player: dict[str, list[dict[str, int]]] | None = None
 
-    if round_status == "finished":
-        presses_by_player = get_finished_round_presses(game_id, round_id)
+    #if round_status == "finished":
+    #    presses_by_player = get_finished_round_presses(game_id, round_id)
+    presses_by_player = get_finished_round_presses(game_id, round_id)
 
     return {
         "game_id": game_id,
