@@ -541,7 +541,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: faf7df79196c36047abef26faf71e93d, type: 2}
   - {fileID: 11400000, guid: d920894c6b09f574f93d06149cd3a981, type: 2}
   - {fileID: 11400000, guid: d2a03f549e003e844aec360a6746195e, type: 2}
-  waitBeforeStartRoundSeconds: 20
+  waitBeforeStartRoundSeconds: 15
   playAudioClips: 1
   betweenRoundClips:
   - {fileID: 8300000, guid: 99bc019546e5844bc9255d93593ea2aa, type: 3}
@@ -1564,8 +1564,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 176.47, y: 41.9}
-  m_SizeDelta: {x: 352.9432, y: 40.875}
+  m_AnchoredPosition: {x: 9.0309, y: -107.7787}
+  m_SizeDelta: {x: 372.4818, y: 215.5574}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &903090774
 MonoBehaviour:
@@ -1587,7 +1587,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '{name1, name2}'
+  m_text: "{name1 (tapped 5 1 hold), \nname1 (tapped 5 1 hold),}"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a9617dbd0789cd34c8e417bc52aed0fc, type: 2}
   m_sharedMaterial: {fileID: 244824076040890011, guid: a9617dbd0789cd34c8e417bc52aed0fc, type: 2}
@@ -1614,15 +1614,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 2048
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -2012,8 +2012,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 312.92712, y: 0}
-  m_SizeDelta: {x: 378.9542, y: 32.196}
+  m_AnchoredPosition: {x: 16.4147, y: -169.04694}
+  m_SizeDelta: {x: 346.125, y: 256.2899}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1241371818
 MonoBehaviour:
@@ -2035,7 +2035,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '{winners}'
+  m_text: '{winners}
+
+    {winners}
+
+    {winners}'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a9617dbd0789cd34c8e417bc52aed0fc, type: 2}
   m_sharedMaterial: {fileID: 244824076040890011, guid: a9617dbd0789cd34c8e417bc52aed0fc, type: 2}
@@ -2062,15 +2066,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 4096
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -2271,8 +2275,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 177.40369, y: -143.1305}
-  m_SizeDelta: {x: 652.7226, y: 188.4568}
+  m_AnchoredPosition: {x: 151.45691, y: -121.15857}
+  m_SizeDelta: {x: 731.4216, y: 188.2989}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1336023512
 MonoBehaviour:
@@ -2294,7 +2298,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '{solution}'
+  m_text: Whoever tapped between 50 and 55 taps!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a9617dbd0789cd34c8e417bc52aed0fc, type: 2}
   m_sharedMaterial: {fileID: 244824076040890011, guid: a9617dbd0789cd34c8e417bc52aed0fc, type: 2}
@@ -2328,8 +2332,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -2581,8 +2585,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -133, y: 116}
-  m_SizeDelta: {x: 285.7608, y: 70.9112}
+  m_AnchoredPosition: {x: -198.97, y: -35.456}
+  m_SizeDelta: {x: 364.7248, y: 70.9112}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1507630516
 MonoBehaviour:
@@ -2639,7 +2643,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 4096
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -2670,7 +2674,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -64.539734, y: 0, z: 0, w: 0}
+  m_margin: {x: 1.0071411, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2719,7 +2723,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -133, y: -121}
+  m_AnchoredPosition: {x: -142.88, y: 233}
   m_SizeDelta: {x: 285.7608, y: 70.9112}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1546529741
@@ -3364,8 +3368,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -120, y: 13}
-  m_SizeDelta: {x: 444.8315, y: 73.642}
+  m_AnchoredPosition: {x: 187.69743, y: -36.820995}
+  m_SizeDelta: {x: 375.3948, y: 73.642}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1858060742
 MonoBehaviour:
@@ -3422,7 +3426,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 2048
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1

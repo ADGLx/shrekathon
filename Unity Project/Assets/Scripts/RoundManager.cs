@@ -173,15 +173,15 @@ public class RoundManager : MonoBehaviour
         return (roundScores, completedPitch) =>
         {
             Debug.Log($"[RoundManager] EndRound fired — round {CurrentRound + 1}/{totalRounds}", this);
+            UpdateBetweenRoundSummary(roundScores, completedPitch);
+
             if (CurrentRound + 1 >= totalRounds)
             {
-                Debug.Log("[RoundManager] All rounds complete — triggering EndGame.", this);
-                GameIsOver = true;
-                EndGame();
+                Debug.Log($"[RoundManager] Final round complete. Waiting {waitBeforeStartRoundSeconds}s before EndGame.", this);
+                StartCoroutine(WaitThenEndGame());
             }
             else
             {
-                UpdateBetweenRoundSummary(roundScores, completedPitch);
                 Debug.Log($"[RoundManager] Waiting {waitBeforeStartRoundSeconds}s before next round.", this);
                 StartCoroutine(WaitThenNextRound());
             }
@@ -212,6 +212,29 @@ public class RoundManager : MonoBehaviour
         NextRound();
     }
 
+    private IEnumerator WaitThenEndGame()
+    {
+        SetBetweenRoundTimerVisible(true);
+        SetBetweenRoundSummaryVisible(true);
+        float waitDuration = Mathf.Max(0f, waitBeforeStartRoundSeconds);
+        betweenRoundDurationSeconds = Mathf.Max(0.001f, waitDuration);
+        float waitEndTime = Time.time + waitDuration;
+
+        while (true)
+        {
+            float remaining = Mathf.Max(0f, waitEndTime - Time.time);
+            UpdateBetweenRoundTimerText(remaining);
+            if (remaining <= 0f)
+                break;
+
+            yield return null;
+        }
+
+        Debug.Log("[RoundManager] WaitThenEndGame — proceeding to EndGame.", this);
+        GameIsOver = true;
+        EndGame();
+    }
+
     private void UpdateBetweenRoundTimerText(float secondsRemaining)
     {
         if (betweenRoundTimerText == null)
@@ -240,6 +263,9 @@ public class RoundManager : MonoBehaviour
     private void UpdateBetweenRoundSummary(Dictionary<string, int> roundScores, PitchData completedPitch)
     {
         List<string> connectedPlayers = GetConnectedPlayers().ToList();
+        Dictionary<string, List<PlayerPress>> playerPressByPlayer = PlayerInputHandler.Instance != null
+            ? PlayerInputHandler.Instance.GetPlayerPress()
+            : new Dictionary<string, List<PlayerPress>>();
 
         List<string> playersWithPoints = new List<string>();
         List<string> playersWithoutPoints = new List<string>();
@@ -251,16 +277,16 @@ public class RoundManager : MonoBehaviour
                 roundScores.TryGetValue(playerId, out score);
 
             if (score > 0)
-                playersWithPoints.Add(playerId);
+                playersWithPoints.Add(FormatPlayerRoundSummary(playerId, playerPressByPlayer));
             else
-                playersWithoutPoints.Add(playerId);
+                playersWithoutPoints.Add(FormatPlayerRoundSummary(playerId, playerPressByPlayer));
         }
 
         if (playersWithPointsText != null)
-            playersWithPointsText.text = playersWithPoints.Count > 0 ? string.Join(", ", playersWithPoints) : string.Empty;
+            playersWithPointsText.text = playersWithPoints.Count > 0 ? string.Join("\n", playersWithPoints) : string.Empty;
 
         if (playersWithoutPointsText != null)
-            playersWithoutPointsText.text = playersWithoutPoints.Count > 0 ? string.Join(", ", playersWithoutPoints) : string.Empty;
+            playersWithoutPointsText.text = playersWithoutPoints.Count > 0 ? string.Join("\n", playersWithoutPoints) : string.Empty;
 
         if (betweenRoundRoundNumberText != null)
             betweenRoundRoundNumberText.text = $"Round {CurrentRound + 1}/{totalRounds}";
@@ -284,6 +310,28 @@ public class RoundManager : MonoBehaviour
         sb.Append(": ");
         sb.Append(string.Join(", ", players));
         return sb.ToString();
+    }
+
+    private string FormatPlayerRoundSummary(string playerId, Dictionary<string, List<PlayerPress>> playerPressByPlayer)
+    {
+        int tapCount = 0;
+        int holdCount = 0;
+        int holdThresholdMs = PlayerInputHandler.DefaultLongTapThresholdMs;
+
+        if (playerPressByPlayer != null && playerPressByPlayer.TryGetValue(playerId, out List<PlayerPress> playerPresses) && playerPresses != null)
+        {
+            tapCount = playerPresses.Count;
+            foreach (PlayerPress press in playerPresses)
+            {
+                if (press != null && (press.end_offset_ms - press.start_offset_ms) >= holdThresholdMs)
+                    holdCount++;
+            }
+        }
+
+        if (holdCount > 0)
+            return $"{playerId} ({tapCount} taps, {holdCount} holds)";
+
+        return $"{playerId} ({tapCount} taps)";
     }
 
     private string GetPlayerDisplayName(string playerId)

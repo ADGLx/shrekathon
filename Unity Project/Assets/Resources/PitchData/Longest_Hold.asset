@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Longest_Hold
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
   characterName: Stiltskin
-  characterDescription: Whoever held the onion the longest
+  characterDescription: Whoever held it the longest!
   characterSprite: {fileID: 1345059731, guid: 15527c433bbb59945a329affda0859e3, type: 3}
   contractTitle: Magic
   contractSprite: {fileID: 807777522, guid: 4840aa04fae9c8042bb99d59d619bea2, type: 3}
