@@ -3,12 +3,15 @@ using TMPro;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using System;
+using UnityEngine.UI;
 
 public class GameAPICreateGameButtonHandler : MonoBehaviour
 {
+    private const int MaxPlayers = 4;
+
     [Header("API")]
     [SerializeField] private GameAPI gameAPI;
-    [SerializeField] private int playerCount = 2;
+    [SerializeField] private int playerCount = MaxPlayers;
     [SerializeField] private float getGamePollIntervalSeconds = 1f;
     [SerializeField] private int roundDurationSeconds = 10;
 
@@ -21,9 +24,28 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
     [SerializeField] private TMP_Text playerNamesText;
     [SerializeField] private TMP_Text errorText;
 
+    [Header("Connected Player Slots (4)")]
+    [SerializeField] private TMP_Text player1NameText;
+    [SerializeField] private TMP_Text player2NameText;
+    [SerializeField] private TMP_Text player3NameText;
+    [SerializeField] private TMP_Text player4NameText;
+    [SerializeField] private Image player1StatusImage;
+    [SerializeField] private Image player2StatusImage;
+    [SerializeField] private Image player3StatusImage;
+    [SerializeField] private Image player4StatusImage;
+    [SerializeField] private Color disconnectedPlayerColor = Color.gray;
+    [SerializeField] private Color connectedPlayerColor = Color.white;
+    [SerializeField] private string waitingForPlayerLabel = "Waiting...";
+
     private bool isRequestInFlight;
     private string currentGameId;
     private Coroutine getGamePollingCoroutine;
+
+    private void Awake()
+    {
+        playerCount = MaxPlayers;
+        UpdateConnectedPlayerSlots(Array.Empty<string>());
+    }
 
     // Hook this directly to a Unity UI Button OnClick event.
     public void CreateGameFromButton()
@@ -45,7 +67,7 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
 
         CreateGameRequest request = new CreateGameRequest
         {
-            amount_of_players = playerCount.ToString()
+            amount_of_players = MaxPlayers.ToString()
         };
 
         gameAPI.CreateGame(
@@ -126,8 +148,10 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
 
                 if (playerNamesText != null)
                 {
-                    playerNamesText.text = "none yet";
+                    playerNamesText.text = string.Empty;
                 }
+
+                UpdateConnectedPlayerSlots(Array.Empty<string>());
             },
             error =>
             {
@@ -152,6 +176,8 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
         {
             playerNamesText.text = "Player names: loading...";
         }
+
+        UpdateConnectedPlayerSlots(Array.Empty<string>());
     }
 
     private void ApplyCreateGameResponse(CreateGameResponse response)
@@ -171,17 +197,18 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
 
         if (playerCountText != null)
         {
-            int count = response.amount_of_players > 0 ? response.amount_of_players : playerCount;
+            int count = response.amount_of_players > 0 ? response.amount_of_players : MaxPlayers;
             playerCountText.text = $" {count}";
         }
 
         string[] names = GetNamesFromResponse(response);
+        UpdateConnectedPlayerSlots(names);
 
         if (playerNamesText != null)
         {
             playerNamesText.text = names.Length > 0
                 ? $" {string.Join(", ", names)}"
-                : "none yet";
+                : string.Empty;
         }
 
         gameAPI.StoreGameData(new GameData
@@ -277,27 +304,80 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
 
         if (playerCountText != null)
         {
-            int count = response.amount_of_players > 0 ? response.amount_of_players : playerCount;
+            int count = response.amount_of_players > 0 ? response.amount_of_players : MaxPlayers;
             playerCountText.text = $" {count}";
         }
 
         string[] names = response.connected_players ?? Array.Empty<string>();
+        UpdateConnectedPlayerSlots(names);
 
         if (playerNamesText != null)
         {
             playerNamesText.text = names.Length > 0
                 ? $" {string.Join(", ", names)}"
-                : "none yet";
+                : string.Empty;
         
-            GameData existing = gameAPI.CurrentGameData;
-
-            gameAPI.StoreGameData(new GameData
-            {
-                game_id           = currentGameId,
-                amount_of_players = existing?.amount_of_players ?? playerCount,
-                connected_players = names
-            });
         }
+
+        GameData existing = gameAPI.CurrentGameData;
+
+        gameAPI.StoreGameData(new GameData
+        {
+            game_id           = currentGameId,
+            amount_of_players = existing?.amount_of_players ?? MaxPlayers,
+            connected_players = names
+        });
+    }
+
+    private void UpdateConnectedPlayerSlots(string[] names)
+    {
+        SetPlayerSlot(player1NameText, player1StatusImage, GetPlayerNameAtIndex(names, 0));
+        SetPlayerSlot(player2NameText, player2StatusImage, GetPlayerNameAtIndex(names, 1));
+        SetPlayerSlot(player3NameText, player3StatusImage, GetPlayerNameAtIndex(names, 2));
+        SetPlayerSlot(player4NameText, player4StatusImage, GetPlayerNameAtIndex(names, 3));
+    }
+
+    private string GetPlayerNameAtIndex(string[] names, int index)
+    {
+        if (names == null || index < 0 || index >= names.Length)
+        {
+            return null;
+        }
+
+        return names[index];
+    }
+
+    private void SetPlayerSlot(TMP_Text nameText, Image statusImage, string playerName)
+    {
+        bool isConnected = IsConnectedPlayerName(playerName);
+
+        if (nameText != null)
+        {
+            nameText.text = isConnected ? playerName.Trim() : waitingForPlayerLabel;
+        }
+
+        if (statusImage != null)
+        {
+            statusImage.color = isConnected ? connectedPlayerColor : disconnectedPlayerColor;
+        }
+    }
+
+    private bool IsConnectedPlayerName(string playerName)
+    {
+        if (string.IsNullOrWhiteSpace(playerName))
+        {
+            return false;
+        }
+
+        string normalized = playerName.Trim();
+
+        return !normalized.Equals("none", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Equals("none yet", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Equals("null", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Equals("undefined", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Equals("waiting", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Equals("waiting...", StringComparison.OrdinalIgnoreCase)
+            && !normalized.Equals("-", StringComparison.OrdinalIgnoreCase);
     }
 
     private string[] GetNamesFromResponse(CreateGameResponse response)
