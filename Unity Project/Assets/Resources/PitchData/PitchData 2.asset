@@ -16,11 +16,9 @@ MonoBehaviour:
   characterDescription: 
   characterSprite: {fileID: 1760111657, guid: e675710ba82c96d43b77d3265efd1ab2, type: 3}
   contractTitle: Magic
-  contractSprite: {fileID: 926094402, guid: e8cdd8282b90a1f4aaf0b851abd11448, type: 3}
+  contractSprite: {fileID: -516807869, guid: 48d3ce4c194f42d4482bd4efaefa21b3, type: 3}
   gameDurationMs: 5000
   gameType: RANGE_TAP
   max: 2
   min: 8
   points: 100
-  introVoiceLine: {fileID: 8300000, guid: 275bdb7c862b08fca944dcd00ecaaa64, type: 3}
-  recurringVoiceLine: {fileID: 0}
