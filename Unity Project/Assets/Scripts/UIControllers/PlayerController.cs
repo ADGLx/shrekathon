@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
         }
 
         playerPortrait.sprite = data.characterSprite;
-        playerPointsText.text = "";
+        playerPointsText.text = "0";
 
         Debug.Log($"[PlayerController] Populated character: {data.characterName} with sprite: {data.characterSprite.name}");
         gameObject.SetActive(true);

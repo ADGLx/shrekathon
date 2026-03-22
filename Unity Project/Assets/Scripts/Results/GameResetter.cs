@@ -1,16 +1,16 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameResetter : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public void TotalReset()
     {
-        
-    }
+        // Destroy persistent singletons so they don't carry over into the new session
+        if (RoundManager.Instance != null)         Destroy(RoundManager.Instance.gameObject);
+        if (GameAPI.Instance != null)              Destroy(GameAPI.Instance.gameObject);
+        if (PlayerInputHandler.Instance != null)   Destroy(PlayerInputHandler.Instance.gameObject);
+        if (AudioManager.Instance != null)         Destroy(AudioManager.Instance.gameObject);
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        SceneManager.LoadScene(0);
     }
 }

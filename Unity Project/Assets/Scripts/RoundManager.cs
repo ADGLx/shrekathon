@@ -275,7 +275,7 @@ public class RoundManager : MonoBehaviour
                     int winnerIndex = Array.IndexOf(gameData.connected_players, winnerId);
                     if (winnerIndex >= 0 && winnerIndex < playerIconDatas.Count)
                     {
-                        endGameData.winnerName   = playerIconDatas[winnerIndex].characterName;
+                        endGameData.winnerName   = winnerId;
                         endGameData.winnerSprite = playerIconDatas[winnerIndex].characterSprite;
                     }
                     else
@@ -341,9 +341,11 @@ public class RoundManager : MonoBehaviour
             Debug.LogError($"[RoundManager] UpdatePlayerPoints — no PlayerController found for playerId '{playerId}'.", this);
             return;
         }
+        if (!playerPoints.ContainsKey(playerId))
+            playerPoints[playerId] = 0;
 
-        playerControllers[playerId].UpdatePlayerPoints(points);
-        playerPoints[playerId] = points;
+        playerPoints[playerId] += points;
+        playerControllers[playerId].UpdatePlayerPoints(playerPoints[playerId]);
     }
 
     public void SetPlayerStatus(string playerId, bool isPressed, bool isLocked)

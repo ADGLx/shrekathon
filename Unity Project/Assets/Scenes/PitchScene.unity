@@ -1910,6 +1910,18 @@ PrefabInstance:
       propertyPath: playerPointsText
       value: 
       objectReference: {fileID: 147346446187186087}
+    - target: {fileID: 5481662246532456790, guid: 1172526f7d404ae4fb87ba10750e3704, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 766a0b8c3020a234c94acf516893b80b, type: 2}
+    - target: {fileID: 5481662246532456790, guid: 1172526f7d404ae4fb87ba10750e3704, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 244824076040890011, guid: 766a0b8c3020a234c94acf516893b80b, type: 2}
+    - target: {fileID: 5481662246532456790, guid: 1172526f7d404ae4fb87ba10750e3704, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6998467686612305903, guid: 1172526f7d404ae4fb87ba10750e3704, type: 3}
       propertyPath: m_SizeDelta.x
       value: 250
