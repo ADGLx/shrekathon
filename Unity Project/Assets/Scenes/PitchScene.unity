@@ -322,6 +322,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5b81f6b6dcc48ef4095dbd43162569a5, type: 2}
   - {fileID: 11400000, guid: faf7df79196c36047abef26faf71e93d, type: 2}
   - {fileID: 11400000, guid: d920894c6b09f574f93d06149cd3a981, type: 2}
+  - {fileID: 11400000, guid: d2a03f549e003e844aec360a6746195e, type: 2}
   waitBeforeStartRoundSeconds: 5
   playAudioClips: 1
   betweenRoundClips:
