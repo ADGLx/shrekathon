@@ -19,6 +19,6 @@ MonoBehaviour:
   contractSprite: {fileID: -508376852, guid: fd40082954b03fa46912b0b469f28170, type: 3}
   gameDurationMs: 15000
   gameType: RANGE_TAP
-  max: 50
-  min: 55
+  max: 55
+  min: 50
   points: 250
