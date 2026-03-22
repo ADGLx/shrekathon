@@ -62,6 +62,7 @@ public class PlayerInputHandler : MonoBehaviour
                 _playerPress = response.presses_by_player ?? new Dictionary<string, List<PlayerPress>>();
                 firstIsFinished = IsRoundFinished(response?.status);
                 Debug.Log($"[PlayerInputHandler] Final round input attempt 1 received. status={response?.status ?? "<null>"}, playersWithPresses={_playerPress.Count}", this);
+                LogTapSnapshot("attempt 1", response?.status, _playerPress);
                 _isRequestPending = false;
                 firstIsDone = true;
             },
@@ -90,6 +91,7 @@ public class PlayerInputHandler : MonoBehaviour
                 _playerPress = response.presses_by_player ?? new Dictionary<string, List<PlayerPress>>();
                 bool secondIsFinished = IsRoundFinished(response?.status);
                 Debug.Log($"[PlayerInputHandler] Final round input attempt 2 received. status={response?.status ?? "<null>"}, finished={secondIsFinished}, playersWithPresses={_playerPress.Count}", this);
+                LogTapSnapshot("attempt 2", response?.status, _playerPress);
                 _isRequestPending = false;
                 secondIsDone = true;
             },
@@ -106,6 +108,19 @@ public class PlayerInputHandler : MonoBehaviour
     private bool IsRoundFinished(string status)
     {
         return string.Equals(status, "finished", System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void LogTapSnapshot(string attemptLabel, string status, Dictionary<string, List<PlayerPress>> playerPress)
+    {
+        int totalTaps = 0;
+        foreach (var kvp in playerPress)
+        {
+            int tapCount = kvp.Value?.Count ?? 0;
+            totalTaps += tapCount;
+            Debug.Log($"[PlayerInputHandler] Server taps ({attemptLabel}) - player={kvp.Key}, tapCount={tapCount}", this);
+        }
+
+        Debug.Log($"[PlayerInputHandler] Server taps summary ({attemptLabel}) - status={status ?? "<null>"}, players={playerPress.Count}, totalTaps={totalTaps}", this);
     }
 
     public IEnumerator StartPlayerInputCollection(string currentGameId)

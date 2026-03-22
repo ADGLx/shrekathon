@@ -104,6 +104,11 @@ public abstract class DealManager : MonoBehaviour
 
         string[] players = RoundManager.Instance.GetConnectedPlayers();
         RoundManager.Instance.ResetPlayerStatuses();
+        Dictionary<string, List<PlayerPress>> playerPress = PlayerInputHandler.Instance != null
+            ? PlayerInputHandler.Instance.GetPlayerPress()
+            : new Dictionary<string, List<PlayerPress>>();
+
+        Debug.Log($"[DealManager] Starting score calculation. gameType={gameType}, players={players.Length}, tapPayloadPlayers={playerPress.Count}", this);
         foreach (string player in players)
         {
             int score = CalculateScore(player);

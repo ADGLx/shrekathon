@@ -249,18 +249,23 @@ public class RoundManager : MonoBehaviour
             {
                 isRequestInFlight = false;
                 GameIsOver = true;
+                Debug.Log($"[RoundManager] EndGame API completed. status={response.status}, game_id={response.game_id}", this);
 
                 // Find the player with the highest points
                 string winnerId = null;
                 int highestPoints = int.MinValue;
+                Debug.Log($"[RoundManager] Calculating final winner from {playerPoints.Count} player point entries.", this);
                 foreach (var kvp in playerPoints)
                 {
+                    Debug.Log($"[RoundManager] Final score candidate: player={kvp.Key}, points={kvp.Value}", this);
                     if (kvp.Value > highestPoints)
                     {
                         highestPoints = kvp.Value;
                         winnerId = kvp.Key;
                     }
                 }
+
+                Debug.Log($"[RoundManager] Final winner resolved: winnerId={winnerId ?? "<none>"}, winnerPoints={highestPoints}", this);
 
                 EndGameData endGameData = new EndGameData();
                 if (winnerId != null)

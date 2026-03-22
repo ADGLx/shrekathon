@@ -302,7 +302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc646b7cdd05eb426a20bffdd9ce7c81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  totalRounds: 3
+  totalRounds: 1
   characterController: {fileID: 276306522}
   contractController: {fileID: 1296005087}
   pitchData:
@@ -365,7 +365,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputHandler
   gameAPI: {fileID: 463206103646567492, guid: 9d8e4f608315c2b4f942782121aad629, type: 3}
-  getRoundRetryIntervalSeconds: 0.1
+  finalRoundRetryDelaySeconds: 2
 --- !u!1 &261372828
 GameObject:
   m_ObjectHideFlags: 0
