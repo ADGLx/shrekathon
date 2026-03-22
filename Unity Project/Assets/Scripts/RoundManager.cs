@@ -1,15 +1,28 @@
 using System;
-using UnityEditor.ShaderGraph.Serialization;
+using System.Collections;
 using UnityEngine;
 
 public class RoundManager : MonoBehaviour
 {
+    // Singleton (from GameOrchestrator)
+    public static RoundManager Instance { get; private set; }
+
+    [Header("Game Configuration")]
+    [SerializeField] private int totalRounds = 6;
+    [SerializeField] private int playerCount = 4;
+
+    public int TotalRounds => totalRounds;
+    public int PlayerCount => playerCount;
+
+    public int CurrentRound { get; private set; }   // 0-indexed
+    public bool GameIsOver { get; private set; }
+
     // Components required for round management
+    [Header("Round")]
     [SerializeField] protected CharacterController characterController;
     [SerializeField] protected ContractController contractController;
     [SerializeField] private PitchData[] pitchData;
-    [SerializeField] private int numberOfRounds;
-    private int currentRound;
+    [SerializeField] private int waitBeforeStartRoundSeconds = 2;
 
     // GameAPI calls
     private GameAPI gameAPI;
@@ -18,117 +31,163 @@ public class RoundManager : MonoBehaviour
     private string currentGameId;
     private Coroutine getGamePollingCoroutine;
 
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);   // kill duplicate (e.g. if scene reloads)
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     void Start()
     {
-        this.gameAPI = GameObject.Find("GameAPI").GetComponent<GameAPI>();
+        gameAPI = GameAPI.Instance;
         gameData = GameAPI.Instance?.CurrentGameData;
+        playerCount = gameData != null ? gameData.amount_of_players : playerCount;
+
+        if (gameData != null)
+            currentGameId = gameData.game_id;
+
+        PlayerInputHandler.Instance.StartCoroutine(PlayerInputHandler.Instance.StartPlayerInputCollection(currentGameId));
         pitchData = Resources.LoadAll<PitchData>("PitchData");
-        currentRound = 0;
+        Debug.Log($"[RoundManager] Start — gameId={currentGameId ?? "NONE"}, playerCount={playerCount}, pitchData loaded={pitchData.Length}, totalRounds={totalRounds}", this);
+        InitializeGame();
+    }
+
+    public void InitializeGame()
+    {
+        CurrentRound = 0;
+        GameIsOver = false;
+        Debug.Log("[RoundManager] Game initialised.");
+        StartRound();
+    }
+
+    public void NextRound()
+    {
+        CurrentRound++;
         StartRound();
     }
 
     public void StartRound()
     {
-        PitchData currentPitch = pitchData[currentRound];
-        currentRound++;
+        PitchData currentPitch = pitchData[CurrentRound];
+        Debug.Log($"[RoundManager] StartRound — round {CurrentRound + 1}/{totalRounds} | pitch='{currentPitch.characterName}', gameType={currentPitch.gameType}, gameDurationMs={currentPitch.gameDurationMs}", this);
 
-        // Handles isnstantiation
         DealManager dealManager;
         if (currentPitch.gameType == "BRINK")
             dealManager = gameObject.AddComponent<BrinkDealManager>();
         else
             throw new Exception($"Unsupported game type: {currentPitch.gameType}");
 
-        dealManager.GetComponent<DealManager>().Init(characterController, contractController);
-        dealManager.Load(pitchData[0]);
-        WaitUntil dealIsLoaded = new WaitUntil(() => dealManager.CurrentData != null);
-        StartCoroutine(dealIsLoaded);
-
+        dealManager.Init(characterController, contractController);
+        dealManager.Load(currentPitch);
         dealManager.OnDestroyed += EndRound();
+        StartCoroutine(WaitForLoadThenDisplay(dealManager));
+        StartCoroutine(CallStartRoundAPI(currentPitch.gameDurationMs));
+    }
+
+    private IEnumerator WaitForLoadThenDisplay(DealManager dealManager)
+    {
+        Debug.Log("[RoundManager] WaitForLoadThenDisplay — waiting for CurrentData...", this);
+        yield return new WaitUntil(() => dealManager.CurrentData != null);
+        Debug.Log("[RoundManager] WaitForLoadThenDisplay — data ready, calling displayDeal.", this);
         dealManager.displayDeal();
     }
 
-    System.Action EndRound()
+    private System.Action EndRound()
     {
-        return () => {
-            if (numberOfRounds >= currentRound)
-                print("TODO: End of Game Logic;");
+        return () =>
+        {
+            Debug.Log($"[RoundManager] EndRound fired — round {CurrentRound + 1}/{totalRounds}", this);
+            if (CurrentRound + 1 >= totalRounds)
+            {
+                Debug.Log("[RoundManager] All rounds complete — triggering EndGame.", this);
+                GameIsOver = true;
+                EndGame();
+                //FindObjectOfType<ScoreViewer>()?.DisplayScores();
+            }
             else
-                StartRound();
+            {
+                Debug.Log($"[RoundManager] Waiting {waitBeforeStartRoundSeconds}s before next round.", this);
+                StartCoroutine(WaitThenNextRound());
+            }
         };
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator WaitThenNextRound()
     {
-        
+        yield return new WaitForSeconds(waitBeforeStartRoundSeconds);
+        Debug.Log("[RoundManager] WaitThenNextRound — proceeding to NextRound.", this);
+        NextRound();
     }
 
     // ---------------------------------------------------- //
     // ----- Client - GameAPI Interaction Logic Below ----- //
-    void StartRound()
+
+    private IEnumerator CallStartRoundAPI(int gameDurationMs)
     {
-        if (isRequestInFlight)
-        {
-            return;
-        }
+        if (isRequestInFlight) yield break;
 
         if (gameAPI == null)
         {
-            SetError("GameAPI reference is missing.");
-            return;
+            Debug.LogError("[RoundManager] GameAPI reference is missing.", this);
+            yield break;
         }
 
         if (string.IsNullOrWhiteSpace(currentGameId))
         {
-            SetError("No game_id available. Create a game first.");
-            return;
+            Debug.LogError("[RoundManager] No game_id available.", this);
+            yield break;
         }
 
         isRequestInFlight = true;
-        ClearError();
+        bool isDone = false;
 
         StartRoundRequest request = new StartRoundRequest
         {
             game_id = currentGameId,
-            time_limit_ms = roundDurationSeconds * 1000
+            time_limit_ms = gameDurationMs
         };
 
         gameAPI.StartRound(
             request,
             response =>
             {
+                Debug.Log($"StartRound completed. round_id={response.round_id}, status={response.status}", this);
                 isRequestInFlight = false;
-
+                isDone = true;
             },
             error =>
             {
+                Debug.LogError($"[RoundManager] StartRound API failed: {error}", this);
                 isRequestInFlight = false;
-                SetError($"StartRound failed: {error}");
+                isDone = true;
             });
+
+        yield return new WaitUntil(() => isDone);
     }
 
-    public void EndGameFromButton()
+    public void EndGame()
     {
-        if (isRequestInFlight)
-        {
-            return;
-        }
+        if (isRequestInFlight) return;
 
         if (gameAPI == null)
         {
-            SetError("GameAPI reference is missing.");
+            Debug.LogError("[RoundManager] GameAPI reference is missing.", this);
             return;
         }
 
         if (string.IsNullOrWhiteSpace(currentGameId))
         {
-            SetError("No game_id available. Create a game first.");
+            Debug.LogError("[RoundManager] No game_id available.", this);
             return;
         }
 
         isRequestInFlight = true;
-        ClearError();
 
         EndGameRequest request = new EndGameRequest
         {
@@ -140,60 +199,28 @@ public class RoundManager : MonoBehaviour
             response =>
             {
                 isRequestInFlight = false;
-                StopGetGamePolling();
-
-                if (playerNamesText != null)
-                {
-                    playerNamesText.text = "none yet";
-                }
+                GameIsOver = true;
             },
             error =>
             {
                 isRequestInFlight = false;
-                SetError($"EndGame failed: {error}");
+                Debug.LogError($"[RoundManager] EndGame API failed: {error}", this);
             });
     }
 
-    private string[] GetNamesFromResponse(CreateGameResponse response)
+    private void StopGetGamePolling()
     {
-        if (response.connected_players != null && response.connected_players.Length > 0)
-        {
-            return response.connected_players;
-        }
-
-        if (response.player_names != null && response.player_names.Length > 0)
-        {
-            return response.player_names;
-        }
-
-        return System.Array.Empty<string>();
-    }
-
-    private void SetError(string message)
-    {
-        Debug.LogError($"GameAPICreateGameButtonHandler: {message}", this);
-
-        if (errorText != null)
-        {
-            errorText.text = message;
-        }
-    }
-
-    private void ClearError()
-    {
-        if (errorText != null)
-        {
-            errorText.text = string.Empty;
-        }
+        if (getGamePollingCoroutine == null) return;
+        StopCoroutine(getGamePollingCoroutine);
+        getGamePollingCoroutine = null;
     }
 
     private void OnDisable()
     {
         StopGetGamePolling();
     }
+
+    void Update()
+    {
+    }
 }
-/**
-* // In the spawning class
-* RoundInstance round = gameObject.AddComponent<RoundInstance>();
-* round.Init(30f);
-*/

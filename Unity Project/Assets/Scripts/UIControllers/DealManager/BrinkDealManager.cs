@@ -3,16 +3,42 @@
  * If anyone holds past zero, everyone loses.
  */
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class BrinkDealManager : DealManager
 {
+    // Tracks press counts per player from the previous frame to avoid per-frame log spam
+    private Dictionary<string, int> _prevPressCounts = new Dictionary<string, int>();
+
     protected override void RoundLogic()
     {
         // Implement specific logic for the brink round
         Dictionary<string, List<PlayerPress>> playerPress = PlayerInputHandler.Instance.GetPlayerPress();
+
+        //Debug.Log($"[BrinkDealManager] RoundLogic - playerPress count: {playerPress.Count}", this);
+
+        foreach (KeyValuePair<string, List<PlayerPress>> player in playerPress)
+        {
+            int currentCount = player.Value.Count;
+            _prevPressCounts.TryGetValue(player.Key, out int prevCount);
+
+            if (currentCount != prevCount)
+            {
+                _prevPressCounts[player.Key] = currentCount;
+
+                System.Text.StringBuilder sb = new System.Text.StringBuilder();
+                sb.Append($"[BrinkDealManager] Player '{player.Key}' press count: {prevCount} → {currentCount}");
+                for (int i = 0; i < player.Value.Count; i++)
+                {
+                    PlayerPress p = player.Value[i];
+                    sb.Append($"\n  [{i}] start_offset_ms={p.start_offset_ms}, end_offset_ms={p.end_offset_ms}");
+                }
+                Debug.Log(sb.ToString(), this);
+            }
+        }
         /*@todo: impliment game modeLogic
         foreach (KeyValuePair<string, List<PlayerPress>> player in playerPress)
         {

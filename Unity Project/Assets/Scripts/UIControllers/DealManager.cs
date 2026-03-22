@@ -29,6 +29,7 @@ public abstract class DealManager : MonoBehaviour
     {
         this.characterController = characterControllerRef;
         this.contractController = contractControllerRef;
+        Debug.Log($"[DealManager] Init — characterController={(characterControllerRef != null ? "set" : "NULL")}, contractController={(contractControllerRef != null ? "set" : "NULL")}", this);
     }
 
     private void Awake()
@@ -38,9 +39,12 @@ public abstract class DealManager : MonoBehaviour
             characterController = GetComponent<CharacterController>();
         if (contractController == null)
             contractController  = GetComponent<ContractController>();
+
+        Debug.Log($"[DealManager] Awake — characterController={(characterController != null ? "found" : "MISSING")}, contractController={(contractController != null ? "found" : "MISSING")}", this);
     }
 
     protected virtual void Update() {
+        // Debug.Log($"[DealManager] Update", this); this works
         RoundLogic();
     }
 
@@ -69,9 +73,10 @@ public abstract class DealManager : MonoBehaviour
         gameDurationMs = data.gameDurationMs;
         gameType = data.gameType;
 
-        Debug.Log($"[DealManager] Loaded pitch: {data.characterName} — {data.contractTitle}");
+        Debug.Log($"[DealManager] Loaded pitch: {data.characterName} — {data.contractTitle} | gameType={gameType}, gameDurationMs={gameDurationMs}");
         //@todo: Perform this only after API request made for next round to begin
-        Invoke(nameof(EndGame), gameDurationMs);
+        Debug.Log($"[DealManager] Starting EndGame timer: {gameDurationMs}ms", this);
+        Invoke(nameof(EndGame), gameDurationMs / 1000f);
     }
 
     public void EndGame()
@@ -90,17 +95,21 @@ public abstract class DealManager : MonoBehaviour
         GameManager.Instance.EndGame();
         */
 
+        Debug.Log($"[DealManager] Firing OnDestroyed event.", this);
         OnDestroyed?.Invoke();
         Destroy(this);
     }
 
     public void displayDeal()
     {
+        Debug.Log("[DealManager] displayDeal — showing character and contract.", this);
         characterController.Show();
         contractController.Show();
     }
+
     public void hideDeal()
     {
+        Debug.Log("[DealManager] hideDeal — hiding character and contract.", this);
         characterController.Hide();
         contractController.Hide();
     }

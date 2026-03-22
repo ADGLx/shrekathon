@@ -67,12 +67,12 @@ public class GameAPI : MonoBehaviour
             response =>
             {
                 string payload = SerializeForLog(response);
-                Debug.Log($"{operation} succeeded. Response: {payload}", this);
+                Debug.Log($"[GameAPI] PostWithDefaults - {operation} succeeded. Response: {payload}", this);
                 onSuccess?.Invoke(response);
             },
             error =>
             {
-                Debug.LogError($"{operation} failed: {error}", this);
+                Debug.LogError($"[GameAPI] PostWithDefaults - {operation} failed: {error}", this);
                 onError?.Invoke(error);
             });
     }
@@ -86,7 +86,7 @@ public class GameAPI : MonoBehaviour
 
         try
         {
-            return JsonConvert.SerializeObject(value);
+            return JsonConvert.SerializeObject(value, Formatting.Indented);
         }
         catch (Exception ex)
         {
