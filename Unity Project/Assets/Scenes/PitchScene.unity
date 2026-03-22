@@ -302,7 +302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc646b7cdd05eb426a20bffdd9ce7c81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  totalRounds: 1
+  totalRounds: 3
   characterController: {fileID: 276306522}
   contractController: {fileID: 1296005087}
   pitchData:

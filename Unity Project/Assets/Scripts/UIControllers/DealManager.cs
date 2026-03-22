@@ -109,12 +109,15 @@ public abstract class DealManager : MonoBehaviour
             : new Dictionary<string, List<PlayerPress>>();
 
         Debug.Log($"[DealManager] Starting score calculation. gameType={gameType}, players={players.Length}, tapPayloadPlayers={playerPress.Count}", this);
+        Dictionary<string, int> roundScores = new Dictionary<string, int>();
         foreach (string player in players)
         {
             int score = CalculateScore(player);
+            roundScores[player] = score;
             RoundManager.Instance.UpdatePlayerPoints(player, score);
             Debug.Log($"[DealManager] Player '{player}' scored {score} points this round.", this);
         }
+        Debug.Log($"[DealManager] Round {(RoundManager.Instance.CurrentRound + 1)} gained points: {string.Join(", ", roundScores)}", this);
 
         Debug.Log($"[DealManager] Firing OnDestroyed event.", this);
         hideDeal();
