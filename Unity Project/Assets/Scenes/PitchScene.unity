@@ -330,6 +330,13 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 4646bf58dfee29ae7ab2acce4804dc9b, type: 3}
   - {fileID: 8300000, guid: d9bcb47ef8433da91a5aff72ab805e4f, type: 3}
   - {fileID: 8300000, guid: 8922b4d42f01f3e49b667349ddc0b484, type: 3}
+  - {fileID: 8300000, guid: 8d53c51f1d426c5e29f49ea06461c083, type: 3}
+  - {fileID: 8300000, guid: a661ee82a0f5adcfc980d0cbd778be4e, type: 3}
+  - {fileID: 8300000, guid: cc08eecb45ab2e29cb90f7641aeb71ef, type: 3}
+  - {fileID: 8300000, guid: f49a73637c58081b2ae4a0f049b1bac4, type: 3}
+  - {fileID: 8300000, guid: 00db2811bf49b265883519d6e9f6c0c5, type: 3}
+  - {fileID: 8300000, guid: 2a3b268591874e25e986a05bef1954a8, type: 3}
+  - {fileID: 8300000, guid: 7bcd7f7c0e052a6b2b69c005c673066f, type: 3}
   playerControllerPrefab: {fileID: 2125554143}
   playerIconDatas:
   - characterName: shrek-pink
