@@ -17,7 +17,7 @@ MonoBehaviour:
   characterSprite: {fileID: 1548264267, guid: d0506d64b97d6164dbbcf6d8362f236c, type: 3}
   contractTitle: Magic
   contractSprite: {fileID: 1657948160, guid: 2b43b6ba5a03b6e409a2e543014f53ca, type: 3}
-  gameDurationMs: 6000
+  gameDurationMs: 10000
   gameType: MIN_TAP
   max: 0
   min: 0
