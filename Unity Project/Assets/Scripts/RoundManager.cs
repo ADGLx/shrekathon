@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Versioning;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,6 +24,7 @@ public class RoundManager : MonoBehaviour
     [Header("Round")]
     [SerializeField] protected CharacterController characterController;
     [SerializeField] protected ContractController contractController;
+    [SerializeField] private TMP_Text roundTimerText;
     [SerializeField] private PitchData[] pitchData;
     [SerializeField] private int waitBeforeStartRoundSeconds = 2;
     [SerializeField] private bool playAudioClips = true;
@@ -131,6 +133,7 @@ public class RoundManager : MonoBehaviour
             throw new Exception($"Unsupported game type: {currentPitch.gameType}");
 
         dealManager.Init(characterController, contractController);
+        dealManager.SetRoundTimerText(roundTimerText);
         dealManager.Load(currentPitch);
         dealManager.OnDestroyed += EndRound();
         StartCoroutine(WaitForLoadThenDisplay(dealManager));

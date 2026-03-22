@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;    
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public abstract class DealManager : MonoBehaviour
 {
@@ -17,6 +15,12 @@ public abstract class DealManager : MonoBehaviour
     [SerializeField] protected string gameType;
 
     [SerializeField] protected int gamePoints;
+    [Header("Round UI")]
+    [SerializeField] private TMP_Text roundTimerText;
+
+    private Coroutine roundTimerCoroutine;
+    private float roundEndTime;
+    private bool isRoundTimerRunning;
 
     // The data asset currently loaded into this pitch
     public PitchData CurrentData { get; private set; }
@@ -32,6 +36,11 @@ public abstract class DealManager : MonoBehaviour
         this.characterController = characterControllerRef;
         this.contractController = contractControllerRef;
         Debug.Log($"[DealManager] Init — characterController={(characterControllerRef != null ? "set" : "NULL")}, contractController={(contractControllerRef != null ? "set" : "NULL")}", this);
+    }
+
+    public void SetRoundTimerText(TMP_Text timerText)
+    {
+        roundTimerText = timerText;
     }
 
     private void Awake()
@@ -79,12 +88,60 @@ public abstract class DealManager : MonoBehaviour
         displayDeal();
         Debug.Log($"[DealManager] Loaded pitch: {data.characterName} — {data.contractTitle} | gameType={gameType}, gameDurationMs={gameDurationMs}");
         Debug.Log($"[DealManager] Starting EndGame timer: {gameDurationMs}ms", this);
+        if (roundTimerText == null)
+            Debug.LogWarning("[DealManager] roundTimerText is not assigned. Assign a TMP_Text in the inspector to show the timer.", this);
+        StartRoundTimer(gameDurationMs / 1000f);
         Invoke(nameof(EndGame), gameDurationMs / 1000f);
     }
 
     public void EndGame()
     {
+        StopRoundTimer();
         StartCoroutine(EndGameRoutine());
+    }
+
+    private void StartRoundTimer(float durationSeconds)
+    {
+        StopRoundTimer();
+
+        isRoundTimerRunning = true;
+        roundEndTime = Time.time + Mathf.Max(0f, durationSeconds);
+        UpdateRoundTimerText(durationSeconds);
+        roundTimerCoroutine = StartCoroutine(UpdateRoundTimerRoutine());
+    }
+
+    private void StopRoundTimer()
+    {
+        isRoundTimerRunning = false;
+        if (roundTimerCoroutine != null)
+        {
+            StopCoroutine(roundTimerCoroutine);
+            roundTimerCoroutine = null;
+        }
+        UpdateRoundTimerText(0f);
+    }
+
+    private System.Collections.IEnumerator UpdateRoundTimerRoutine()
+    {
+        while (isRoundTimerRunning)
+        {
+            float remaining = Mathf.Max(0f, roundEndTime - Time.time);
+            UpdateRoundTimerText(remaining);
+
+            if (remaining <= 0f)
+                yield break;
+
+            yield return null;
+        }
+    }
+
+    private void UpdateRoundTimerText(float secondsRemaining)
+    {
+        if (roundTimerText == null)
+            return;
+
+        float safeSeconds = Mathf.Max(0f, secondsRemaining);
+        roundTimerText.text = $"{safeSeconds:0.000}s";
     }
 
     private System.Collections.IEnumerator EndGameRoutine()
