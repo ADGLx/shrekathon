@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
@@ -6,6 +7,11 @@ public class AudioManager : MonoBehaviour
      
 
       public static AudioManager Instance { get; private set; }
+
+      [SerializeField] private AudioSource musicSource;
+      [SerializeField] private AudioSource voiceSource;
+      [SerializeField] private AudioSource sfxSource;
+
      private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -29,4 +35,33 @@ public class AudioManager : MonoBehaviour
     {
         
     }
+
+    public void playMusic(AudioClip clip)
+    {
+        musicSource.clip = clip;
+        musicSource.Play();
+    }
+
+    public void playVoice(AudioClip clip)
+    {
+        voiceSource.PlayOneShot(clip);
+    }
+
+    public void playSFX(AudioClip clip)
+    {
+        sfxSource.PlayOneShot(clip);
+    }
+    
+    public void StopAudio()
+    {
+        musicSource.Stop();
+        voiceSource.Stop();
+        sfxSource.Stop();
+    }
+
+    public float GetMasterVolume()
+    {
+        return musicSource.volume;
+    }
+
 }
