@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using System;
 
 public class GameAPICreateGameButtonHandler : MonoBehaviour
 {
@@ -182,6 +183,7 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
                 : "none yet";
         }
 
+        Debug.Log("Save gameData applied.", this);
         GameData gameData = new GameData
         {
             game_id = response.game_id,
@@ -287,6 +289,19 @@ public class GameAPICreateGameButtonHandler : MonoBehaviour
                 ? $" {string.Join(", ", names)}"
                 : "none yet";
         }
+
+        /*
+        GameData existing = GameAPI.Instance.CurrentGameData;
+        if (existing != null)
+        {
+            GameAPI.Instance.StoreGameData(new GameData
+            {
+                game_id           = existing.game_id,
+                amount_of_players = existing.amount_of_players,
+                connected_players = response.connected_players
+            });
+        }
+        */
     }
 
     private string[] GetNamesFromResponse(CreateGameResponse response)

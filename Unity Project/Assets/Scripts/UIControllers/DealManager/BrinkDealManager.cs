@@ -1,12 +1,10 @@
 /**
- * BrinkRound.cs used to manage the brink round, where the last person to release their button before the timer hits zero wins the pot. 
+ * BrinkRound.cs used to manage the brink round, where the last person to release their button before the timer hits zero wins the pot.
  * If anyone holds past zero, everyone loses.
  */
 
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class BrinkDealManager : DealManager
 {
@@ -15,86 +13,58 @@ public class BrinkDealManager : DealManager
 
     protected override void RoundLogic()
     {
-        // Implement specific logic for the brink round
         Dictionary<string, List<PlayerPress>> playerPress = PlayerInputHandler.Instance.GetPlayerPress();
 
-        //Debug.Log($"[BrinkDealManager] RoundLogic - playerPress count: {playerPress.Count}", this);
-
-        foreach (KeyValuePair<string, List<PlayerPress>> player in playerPress)
+        foreach (var kvp in playerPress)
         {
-            int currentCount = player.Value.Count;
-            _prevPressCounts.TryGetValue(player.Key, out int prevCount);
+            string playerKey = kvp.Key;
+            List<PlayerPress> presses = kvp.Value;
 
-            if (currentCount != prevCount)
+            if (presses == null || presses.Count == 0) continue;
+
+            // Locked if they pressed more than once, or if their only press is already complete
+            bool isLocked  = presses.Count > 1 || presses[^1].end_offset_ms > 0;
+            // Currently holding if not locked and the latest press has no release time yet
+            bool isPressed = !isLocked && presses[^1].end_offset_ms == 0;
+
+            // Only log on change to avoid per-frame spam
+            int currentCount = presses.Count;
+            if (!_prevPressCounts.TryGetValue(playerKey, out int prevCount) || prevCount != currentCount)
             {
-                _prevPressCounts[player.Key] = currentCount;
-
-                System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                sb.Append($"[BrinkDealManager] Player '{player.Key}' press count: {prevCount} → {currentCount}");
-                for (int i = 0; i < player.Value.Count; i++)
-                {
-                    PlayerPress p = player.Value[i];
-                    sb.Append($"\n  [{i}] start_offset_ms={p.start_offset_ms}, end_offset_ms={p.end_offset_ms}");
-                }
-                Debug.Log(sb.ToString(), this);
+                Debug.Log($"[BrinkDealManager] '{playerKey}' press count {prevCount}->{currentCount} | isPressed={isPressed}, isLocked={isLocked}");
+                _prevPressCounts[playerKey] = currentCount;
             }
+
+            RoundManager.Instance.SetPlayerStatus(playerKey, isPressed, isLocked);
         }
-        /*@todo: impliment game modeLogic
-        foreach (KeyValuePair<string, List<PlayerPress>> player in playerPress)
-        {
-            // If the player has released the button at least once lock it
-            if (player.Value.Length >= 2)
-            {
-                GameManager.Instance.GetPlayerGUI(player.Key).SetButtonState(false, true);
-                break;
-            }
-
-            // If the player has pressed it once, show that the button is actively being pressed
-            if (player.Value.Length == 1)
-            {
-                GameManager.Instance.GetPlayerGUI(player.Key).SetButtonState(true, false);
-            }
-
-
-            if (player.Value.Length > 0)
-            {
-                PressData lastPress = player.Value[player.Value.Length - 1];
-                if (lastPress.time >= gameDuration)
-                {
-                    // Player held past zero, they lose
-                    GameManager.Instance.PlayerLost(player.Key);
-                }
-            }
-        }
-        */
     }
 
     protected override int CalculateScore(string playerKey)
     {
-        string lastPlayer = "";
-        int lastPressTime = 0;
+        Dictionary<string, List<PlayerPress>> playerPress = PlayerInputHandler.Instance.GetPlayerPress();
 
-        /* @todo: impliment game modeLogic
-        foreach (KeyValuePair<string, PressData[]> player in players)
+        string lastPlayer    = "";
+        int    lastReleaseMs = 0;
+
+        foreach (var kvp in playerPress)
         {
-            // If anyone holds the button past zero award no points (pressed once and not released)
-            if (player.Value.Length == 1)
-                return 0;
-
-            if (lastPressTime < player.Value[1].time)
+            foreach (PlayerPress press in kvp.Value)
             {
-                lastPlayer = player.Key;
-                lastPressTime = player.Value[1].time;
+                if (press.end_offset_ms > lastReleaseMs)
+                {
+                    lastReleaseMs = press.end_offset_ms;
+                    lastPlayer    = kvp.Key;
+                }
             }
         }
 
-        // If this player released the button last, return the number of points
-        if (lastPlayer == playerKey)
-            return 100;
-        */
+        // If the last release was after the game ended, everyone loses
+        if (lastReleaseMs > gameDurationMs)
+        {
+            Debug.Log($"[BrinkDealManager] Last release ({lastReleaseMs}ms) exceeded game duration ({gameDurationMs}ms) — all players score 0.");
+            return 0;
+        }
 
-        // Gets no points otherwise
-        return 0;
+        return playerKey == lastPlayer ? 100 : 0;
     }
 }
-

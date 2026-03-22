@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RoundManager : MonoBehaviour
@@ -31,6 +32,14 @@ public class RoundManager : MonoBehaviour
     private string currentGameId;
     private Coroutine getGamePollingCoroutine;
 
+    [Header("Round")]
+    // Tracking of player portraits and points in game
+    [SerializeField] PlayerController playerControllerPrefab;  // assign in inspector
+    [SerializeField] List<PlayerIconData> playerIconDatas;  // assign in inspector player portraits in hierarchy order (e.g. Player1, Player2, etc.)
+    [SerializeField] GameObject[] playerControllerContainer; // assign in inspector - parent object to hold instantiated PlayerControllers
+    protected Dictionary<string, PlayerController> playerControllers = new Dictionary<string, PlayerController>();
+    protected Dictionary<string, int> playerPoints = new Dictionary<string, int>();
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -54,6 +63,7 @@ public class RoundManager : MonoBehaviour
 
         PlayerInputHandler.Instance.StartCoroutine(PlayerInputHandler.Instance.StartPlayerInputCollection(currentGameId));
         pitchData = Resources.LoadAll<PitchData>("PitchData");
+        AssignPlayerPortraits();
         Debug.Log($"[RoundManager] Start — gameId={currentGameId ?? "NONE"}, playerCount={playerCount}, pitchData loaded={pitchData.Length}, totalRounds={totalRounds}", this);
         InitializeGame();
     }
@@ -218,6 +228,68 @@ public class RoundManager : MonoBehaviour
     private void OnDisable()
     {
         StopGetGamePolling();
+    }
+
+    // Tracking Player Portraits and Points (for future use in score viewer, etc.)
+    void AssignPlayerPortraits()
+    {
+        if (gameData?.connected_players == null)
+        {
+            Debug.LogError("[RoundManager] AssignPlayerPortraits — no connected players in gameData.", this);
+            return;
+        }
+
+        for (int i = 0; i < gameData.connected_players.Length; i++)
+        {
+            string playerId = gameData.connected_players[i];
+
+            PlayerController controller = Instantiate(playerControllerPrefab, playerControllerContainer[i].transform);
+
+            if (i < playerIconDatas.Count)
+                controller.Populate(playerIconDatas[i]);
+            else
+                Debug.LogWarning($"[RoundManager] No PlayerIconData for player index {i} ({playerId}).", this);
+
+            playerControllers[playerId] = controller;
+        }
+
+        Debug.Log($"[RoundManager] AssignPlayerPortraits — assigned {playerControllers.Count} player portraits.", this);
+    }
+
+    public void UpdatePlayerPoints(string playerId, int points)
+    {
+        if (!playerControllers.ContainsKey(playerId))
+        {
+            Debug.LogError($"[RoundManager] UpdatePlayerPoints — no PlayerController found for playerId '{playerId}'.", this);
+            return;
+        }
+
+        playerControllers[playerId].UpdatePlayerPoints(points);
+        playerPoints[playerId] = points;
+    }
+
+    public void SetPlayerStatus(string playerId, bool isPressed, bool isLocked)
+    {
+        if (!playerControllers.ContainsKey(playerId))
+        {
+            Debug.LogError($"[RoundManager] SetPlayerStatus — no PlayerController found for playerId '{playerId}'.", this);
+            return;
+        }
+
+        playerControllers[playerId].SetPlayerStatus(isPressed, isLocked);
+    }
+
+    public void ResetPlayerStatuses()
+    {
+        foreach (var playerId in playerControllers.Keys)
+        {
+            playerControllers[playerId].SetPlayerStatus(false, false);
+        }
+    }
+
+    public string[] GetConnectedPlayers()
+    {
+        return gameData?.connected_players ?? new string[0];
     }
 
     void Update()

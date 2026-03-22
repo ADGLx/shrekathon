@@ -82,18 +82,15 @@ public abstract class DealManager : MonoBehaviour
     public void EndGame()
     {
         Debug.Log($"[DealManager] Game ended for pitch: {CurrentData.characterName} — {CurrentData.contractTitle}");
-        //@todo: Sends player scores to game manager, reset any GUI effects applied
-        /*
-        Dictionary<string, int> playerScores = new Dictionary<string, int>();
-        foreach (KeyValuePair<string, PlayerData> player in players)
-        {
-            playerScores[player.Key] = CalculateScore(player.Key);
-            GameManager.Instance.GetPlayerGUI(player.Key).ResetState();
-        }
 
-        GameManager.Instance.UpdateScore(playerScores);
-        GameManager.Instance.EndGame();
-        */
+        string[] players = RoundManager.Instance.GetConnectedPlayers();
+        RoundManager.Instance.ResetPlayerStatuses();
+        foreach (string player in players)
+        {
+            int score = CalculateScore(player);
+            RoundManager.Instance.UpdatePlayerPoints(player, score);
+            Debug.Log($"[DealManager] Player '{player}' scored {score} points this round.", this);
+        }
 
         Debug.Log($"[DealManager] Firing OnDestroyed event.", this);
         OnDestroyed?.Invoke();

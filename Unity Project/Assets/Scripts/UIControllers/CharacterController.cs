@@ -8,7 +8,6 @@ public class CharacterController : MonoBehaviour
   [Header("UI References")]
     [SerializeField] private Image      portraitImage;
     [SerializeField] private TextMeshProUGUI nameLabel;
-    [SerializeField] private TextMeshProUGUI descriptionLabel;
 
     [Header("Entrance Animation")]
     [SerializeField] private Animator   characterAnimator;
@@ -22,7 +21,6 @@ public class CharacterController : MonoBehaviour
 
       portraitImage.sprite = data.characterSprite;
       nameLabel.text = data.characterName;
-      //descriptionLabel.text = data.characterDescription;
 
       Debug.Log($"[CharacterManager] Populated character: {data.characterName}");
     }
