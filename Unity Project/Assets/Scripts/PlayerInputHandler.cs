@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.PackageManager.Requests;
+// using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 
 public class PlayerInputHandler : MonoBehaviour
 {
+    public const int DefaultLongTapThresholdMs = 2000;
+
     [SerializeField] private GameAPI gameAPI;
     [SerializeField] private float finalRoundRetryDelaySeconds = 2f;
 
@@ -115,12 +117,66 @@ public class PlayerInputHandler : MonoBehaviour
         int totalTaps = 0;
         foreach (var kvp in playerPress)
         {
-            int tapCount = kvp.Value?.Count ?? 0;
+            List<PlayerPress> presses = kvp.Value ?? new List<PlayerPress>();
+            int tapCount = presses.Count;
             totalTaps += tapCount;
-            Debug.Log($"[PlayerInputHandler] Server taps ({attemptLabel}) - player={kvp.Key}, tapCount={tapCount}", this);
+
+            int longestHoldMs = GetLongestHoldDurationMs(kvp.Key, playerPress);
+            int longTapCount = GetLongTapCount(kvp.Key, DefaultLongTapThresholdMs, playerPress);
+            Debug.Log($"[PlayerInputHandler] Server taps ({attemptLabel}) - player={kvp.Key}, tapCount={tapCount}, longestHoldMs={longestHoldMs}, longTapCount(>={DefaultLongTapThresholdMs}ms)={longTapCount}", this);
         }
 
         Debug.Log($"[PlayerInputHandler] Server taps summary ({attemptLabel}) - status={status ?? "<null>"}, players={playerPress.Count}, totalTaps={totalTaps}", this);
+    }
+
+    public int GetLongestHoldDurationMs(string playerKey)
+    {
+        return GetLongestHoldDurationMs(playerKey, _playerPress);
+    }
+
+    public int GetLongTapCount(string playerKey, int thresholdMs)
+    {
+        return GetLongTapCount(playerKey, thresholdMs, _playerPress);
+    }
+
+    private int GetLongestHoldDurationMs(string playerKey, Dictionary<string, List<PlayerPress>> playerPress)
+    {
+        if (string.IsNullOrWhiteSpace(playerKey) || playerPress == null || !playerPress.TryGetValue(playerKey, out List<PlayerPress> presses) || presses == null)
+            return 0;
+
+        int longestMs = 0;
+        foreach (PlayerPress press in presses)
+        {
+            int durationMs = GetPressDurationMs(press);
+            if (durationMs > longestMs)
+                longestMs = durationMs;
+        }
+
+        return longestMs;
+    }
+
+    private int GetLongTapCount(string playerKey, int thresholdMs, Dictionary<string, List<PlayerPress>> playerPress)
+    {
+        if (thresholdMs <= 0 || string.IsNullOrWhiteSpace(playerKey) || playerPress == null || !playerPress.TryGetValue(playerKey, out List<PlayerPress> presses) || presses == null)
+            return 0;
+
+        int longTapCount = 0;
+        foreach (PlayerPress press in presses)
+            if (GetPressDurationMs(press) >= thresholdMs)
+                longTapCount++;
+
+        return longTapCount;
+    }
+
+    private int GetPressDurationMs(PlayerPress press)
+    {
+        if (press == null)
+            return 0;
+
+        if (press.end_offset_ms <= 0)
+            return 0;
+
+        return Mathf.Max(0, press.end_offset_ms - press.start_offset_ms);
     }
 
     public IEnumerator StartPlayerInputCollection(string currentGameId)
