@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Versioning;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -26,7 +27,6 @@ public class RoundManager : MonoBehaviour
     [SerializeField] private int waitBeforeStartRoundSeconds = 2;
     [SerializeField] private bool playAudioClips = true;
     [SerializeField] private AudioClip[] betweenRoundClips;
-    [SerializeField] private AudioSource audioSource;
     private int _lastClipIndex = -1;
 
     // GameAPI calls
@@ -103,11 +103,6 @@ public class RoundManager : MonoBehaviour
     {
         if (!playAudioClips) return;
         if (betweenRoundClips == null || betweenRoundClips.Length == 0) return;
-        if (audioSource == null)
-        {
-            Debug.LogWarning("[RoundManager] PlayRandomBetweenRoundClip — no AudioSource assigned.", this);
-            return;
-        }
 
         int index = _lastClipIndex;
         if (betweenRoundClips.Length > 1)
@@ -117,7 +112,7 @@ public class RoundManager : MonoBehaviour
             index = 0;
 
         _lastClipIndex = index;
-        audioSource.PlayOneShot(betweenRoundClips[index]);
+        AudioManager.Instance.playVoice(betweenRoundClips[index]);
     }
 
     public void StartRound()

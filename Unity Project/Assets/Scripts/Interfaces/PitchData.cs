@@ -21,8 +21,5 @@ public class PitchData : ScriptableObject
     public int max;
     public int min;
     public int points;
-    [Header("Audio")]
-    public AudioClip introVoiceLine;
-    public AudioClip recurringVoiceLine;
-    
+
 }

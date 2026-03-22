@@ -103,7 +103,6 @@ public abstract class DealManager : MonoBehaviour
 
     public void displayDeal()
     {
-        AudioManager.Instance.playVoice(CurrentData.introVoiceLine);
         Debug.Log("[DealManager] displayDeal — showing character and contract.", this);
         characterController.Show();
         contractController.Show();

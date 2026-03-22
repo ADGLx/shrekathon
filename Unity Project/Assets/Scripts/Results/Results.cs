@@ -10,6 +10,8 @@ public class Results : MonoBehaviour
 
     void Start()
     {
+
+        AudioManager.Instance.StopAudio();  // stop any lingering music/voices from the game
         if (GameAPI.Instance == null)
         {
             Debug.LogError("[Results] GameAPI.Instance is null — cannot populate results screen.", this);

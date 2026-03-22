@@ -22,3 +22,5 @@ MonoBehaviour:
   max: 30
   min: 20
   points: 50
+  introVoiceLine: {fileID: 8300000, guid: 275bdb7c862b08fca944dcd00ecaaa64, type: 3}
+  recurringVoiceLine: {fileID: 0}

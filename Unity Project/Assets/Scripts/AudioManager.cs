@@ -11,6 +11,7 @@ public class AudioManager : MonoBehaviour
       [SerializeField] private AudioSource musicSource;
       [SerializeField] private AudioSource voiceSource;
       [SerializeField] private AudioSource sfxSource;
+      [SerializeField] private AudioSource announcerSource;
 
      private void Awake()
     {
@@ -46,17 +47,22 @@ public class AudioManager : MonoBehaviour
     {
         voiceSource.PlayOneShot(clip);
     }
+    public void playAnnouncerVoice(AudioClip clip)
+    {
+        announcerSource.PlayOneShot(clip);
+    }
 
     public void playSFX(AudioClip clip)
     {
         sfxSource.PlayOneShot(clip);
     }
+
     
     public void StopAudio()
     {
-        musicSource.Stop();
         voiceSource.Stop();
         sfxSource.Stop();
+        announcerSource.Stop();
     }
 
     public float GetMasterVolume()
