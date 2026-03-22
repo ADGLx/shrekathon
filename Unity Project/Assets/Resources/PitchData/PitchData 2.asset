@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a54d88f7e73bdd0a92c58d14496dbec, type: 3}
-  m_Name: PitchData 1
+  m_Name: PitchData 2
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
-  characterName: stiltskin
+  characterName: shrek pink
   characterDescription: 
-  characterSprite: {fileID: 1345059731, guid: 15527c433bbb59945a329affda0859e3, type: 3}
+  characterSprite: {fileID: -1360056644, guid: 411d42bafe8bec743abbff201f926c7a, type: 3}
   contractTitle: Magic
-  contractSprite: {fileID: 1370422131, guid: a0baa8016d8ec944c83a3821ac206f09, type: 3}
+  contractSprite: {fileID: 926094402, guid: e8cdd8282b90a1f4aaf0b851abd11448, type: 3}
   gameDurationMs: 15000
   gameType: BRINK

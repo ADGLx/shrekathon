@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a54d88f7e73bdd0a92c58d14496dbec, type: 3}
   m_Name: PitchData
   m_EditorClassIdentifier: Assembly-CSharp::PitchData
-  characterName: Rumpelstiltskin
-  characterDescription: Fucking weird
-  characterSprite: {fileID: -6010882044385638185, guid: aac28aa6380807736bde40d276b5fdf5, type: 3}
+  characterName: Fairy
+  characterDescription: 
+  characterSprite: {fileID: -286012882, guid: 098ac6d04506408439cb8c2e623a0131, type: 3}
   contractTitle: Soulbinder
-  contractSprite: {fileID: 8957324059118975939, guid: c90ec6189b451b689baf62a6afd2aff7, type: 3}
-  gameDurationMs: 27000
+  contractSprite: {fileID: 926094402, guid: e8cdd8282b90a1f4aaf0b851abd11448, type: 3}
+  gameDurationMs: 20000
   gameType: BRINK
