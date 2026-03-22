@@ -460,6 +460,7 @@ public class RoundManager : MonoBehaviour
                     endGameData.winnerPoints = highestPoints;
                 }
 
+                endGameData.playerPoints = new Dictionary<string, int>(playerPoints);  // include all player points for potential display in results
                 gameAPI.StoreEndGameData(endGameData);
                 SceneManager.LoadScene("Results");
             },

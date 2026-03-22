@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 public class Results : MonoBehaviour
 {
     [SerializeField] private Image winnerImage;
     [SerializeField] private TMP_Text winnerNameText;
     [SerializeField] private TMP_Text winnerPointsText;
+    [SerializeField] private TMP_Text leaderBoardText;
 
     void Start()
     {
@@ -27,5 +29,7 @@ public class Results : MonoBehaviour
         winnerImage.sprite = data.winnerSprite;
         winnerNameText.text = data.winnerName;
         winnerPointsText.text = data.winnerPoints.ToString();
+        var sortedPlayers = data.playerPoints.OrderByDescending(kvp => kvp.Value);
+        leaderBoardText.text = string.Join("\n", sortedPlayers.Select(kvp => $"{kvp.Key}: {kvp.Value}"));
     }
 }
