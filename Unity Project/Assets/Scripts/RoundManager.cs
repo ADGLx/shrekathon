@@ -24,6 +24,7 @@ public class RoundManager : MonoBehaviour
     [SerializeField] protected ContractController contractController;
     [SerializeField] private PitchData[] pitchData;
     [SerializeField] private int waitBeforeStartRoundSeconds = 2;
+    [SerializeField] private bool playAudioClips = true;
     [SerializeField] private AudioClip[] betweenRoundClips;
     [SerializeField] private AudioSource audioSource;
     private int _lastClipIndex = -1;
@@ -100,6 +101,7 @@ public class RoundManager : MonoBehaviour
 
     private void PlayRandomBetweenRoundClip()
     {
+        if (!playAudioClips) return;
         if (betweenRoundClips == null || betweenRoundClips.Length == 0) return;
         if (audioSource == null)
         {
