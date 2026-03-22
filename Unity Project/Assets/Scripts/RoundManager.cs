@@ -150,7 +150,6 @@ public class RoundManager : MonoBehaviour
         return () =>
         {
             Debug.Log($"[RoundManager] EndRound fired — round {CurrentRound + 1}/{totalRounds}", this);
-            PlayerInputHandler.Instance.EndPlayerInputCollection();
             if (CurrentRound + 1 >= totalRounds)
             {
                 Debug.Log("[RoundManager] All rounds complete — triggering EndGame.", this);
@@ -210,7 +209,6 @@ public class RoundManager : MonoBehaviour
                 Debug.Log($"StartRound completed. round_id={response.round_id}, status={response.status}", this);
                 isRequestInFlight = false;
                 isDone = true;
-                PlayerInputHandler.Instance.StartCoroutine(PlayerInputHandler.Instance.StartPlayerInputCollection(currentGameId));
             },
             error =>
             {

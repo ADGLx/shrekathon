@@ -84,7 +84,23 @@ public abstract class DealManager : MonoBehaviour
 
     public void EndGame()
     {
+        StartCoroutine(EndGameRoutine());
+    }
+
+    private System.Collections.IEnumerator EndGameRoutine()
+    {
         Debug.Log($"[DealManager] Game ended for pitch: {CurrentData.characterName} — {CurrentData.contractTitle}");
+
+        string currentGameId = GameAPI.Instance?.CurrentGameData?.game_id;
+        if (PlayerInputHandler.Instance != null && !string.IsNullOrWhiteSpace(currentGameId))
+        {
+            Debug.Log("[DealManager] Timer finished. Requesting final round input from API.", this);
+            yield return PlayerInputHandler.Instance.FetchRoundInputOnce(currentGameId);
+        }
+        else
+        {
+            Debug.LogWarning("[DealManager] Skipping final round input fetch because PlayerInputHandler or game_id is missing.", this);
+        }
 
         string[] players = RoundManager.Instance.GetConnectedPlayers();
         RoundManager.Instance.ResetPlayerStatuses();
